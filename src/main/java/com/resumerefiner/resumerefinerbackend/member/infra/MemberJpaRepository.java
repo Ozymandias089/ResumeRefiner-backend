@@ -2,19 +2,21 @@ package com.resumerefiner.resumerefinerbackend.member.infra;
 
 import com.resumerefiner.resumerefinerbackend.member.domain.Member;
 import com.resumerefiner.resumerefinerbackend.member.domain.Provider;
+import com.resumerefiner.resumerefinerbackend.member.domain.vo.Email;
+import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
 public interface MemberJpaRepository extends JpaRepository<Member, Long> {
 
-    Optional<Member> findByEmail(String email);
+    Optional<Member> findByEmail(Email email);
 
-    Optional<Member> findByHandle(String handle);
+    Optional<Member> findByHandle(Handle handle);
 
-    boolean existsByEmail(String email);
+    boolean existsByEmail(Email email);
 
-    boolean existsByHandle(String handle);
+    boolean existsByHandle(Handle handle);
 
     Optional<Member> findByProviderAndProviderUserId(Provider provider, String providerUserId);
 }

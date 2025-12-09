@@ -1,0 +1,27 @@
+package com.resumerefiner.resumerefinerbackend.member.application.service;
+
+import com.resumerefiner.resumerefinerbackend.member.application.dto.ValidateHandleResponseDTO;
+import com.resumerefiner.resumerefinerbackend.member.application.port.in.ValidateInputUseCase;
+import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
+import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class InputValidatorService implements ValidateInputUseCase {
+    private final MemberRepository memberRepository;
+
+
+    @Override
+    public ValidateHandleResponseDTO validateHandle(String handle) {
+        Handle target = new Handle(handle);
+
+        boolean availability = !memberRepository.existsByHandle(target);
+        log.info("Validate handle {} availability {}", handle, availability);
+
+        return new ValidateHandleResponseDTO(handle, availability);
+    }
+}

@@ -1,0 +1,108 @@
+package com.resumerefiner.resumerefinerbackend.member.application.service;
+
+import com.resumerefiner.resumerefinerbackend.media.domain.MediaFileRepository;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.MemberSummaryDTO;
+import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetMeUseCase;
+import com.resumerefiner.resumerefinerbackend.member.application.port.in.LogOutUseCase;
+import com.resumerefiner.resumerefinerbackend.member.application.port.in.LoginUseCase;
+import com.resumerefiner.resumerefinerbackend.member.application.port.in.RegisterMemberUseCase;
+import com.resumerefiner.resumerefinerbackend.member.domain.Member;
+import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
+import com.resumerefiner.resumerefinerbackend.member.domain.vo.Email;
+import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, LogOutUseCase, GetMeUseCase {
+
+    private final MemberRepository memberRepository;
+    private final MediaFileRepository mediaFileRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public MemberSummaryDTO getMe(GetMeCommand q) {
+        Member member = memberRepository.findByHandle(new Handle(q.handle().getValue()))
+                .orElseThrow(() -> new IllegalArgumentException("MEMBER_NOT_FOUND"));
+
+        return toMemberSummary(member, 0, 0);
+    }
+
+    @Override
+    public void logout(LogoutCommand command) {
+        log.info("Member logged out. handle={}", command.handle().getValue());
+        // TODO: lastLogoutAt 업데이트, audit 로그 남기기 등
+    }
+
+    @Override
+    public MemberSummaryDTO login(LogInCommand command) {
+        Member member = memberRepository.findByEmail(new Email(command.email()))
+                .orElseThrow(() -> new IllegalArgumentException("INVALID_CREDENTIALS"));
+
+        if (!passwordEncoder.matches(command.password(), member.getPasswordHash())) {
+            throw new IllegalArgumentException("INVALID_CREDENTIALS");
+        }
+
+        if (!member.isActive()) {
+            throw new IllegalStateException("MEMBER_INACTIVE");
+        }
+
+        // TODO: resumeCount, reviewCount는 나중에 다른 레포지토리에서 계산해서 넘길 수 있음
+        return toMemberSummary(member, 0, 0);
+    }
+
+    @Override
+    @Transactional
+    public MemberSummaryDTO register(RegisterMemberCommand command) {
+        if (memberRepository.existsByEmail(new Email(command.email()))) {
+            throw new IllegalArgumentException("EMAIL_ALREADY_IN_USE");
+        }
+        if (memberRepository.existsByHandle(new Handle(command.handle()))) {
+            throw new IllegalArgumentException("HANDLE_ALREADY_IN_USE");
+        }
+
+        // 2) 비밀번호 해시
+        String encodedPassword = passwordEncoder.encode(command.password());
+
+        // 3) 도메인 엔티티 생성
+        Member member = Member.registerLocal(
+                command.handle(),
+                command.email(),
+                encodedPassword,
+                command.name()
+        );
+
+        Member savedMember = memberRepository.save(member);
+        log.info("Member saved with id={}, handle={}", savedMember.getId(), savedMember.getHandle());
+        return toMemberSummary(savedMember, 0, 0);
+    }
+
+    private MemberSummaryDTO toMemberSummary(Member m, int resumeCount, int reviewCount) {
+        return new MemberSummaryDTO(
+                m.getId(),
+                m.getHandle().getValue(),
+                m.getEmail().getValue(),
+                m.getName(),
+                m.getRole().name(),
+                m.isActive(),
+
+                null,
+
+                m.getCredits(),
+                null,
+
+                resumeCount,
+                reviewCount,
+
+                m.getCreatedAt() != null ? m.getCreatedAt() : Instant.now()
+        );
+    }
+}
