@@ -10,7 +10,6 @@ import com.resumerefiner.resumerefinerbackend.member.application.port.in.LogOutU
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.LoginUseCase;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.RegisterMemberUseCase;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
-import jakarta.servlet.UnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
