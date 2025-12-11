@@ -31,7 +31,8 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/logout",
                                 "/api/auth/me",
-                                "/api/handle/check"
+                                "/api/handle/check",
+                                "/api/email/check"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

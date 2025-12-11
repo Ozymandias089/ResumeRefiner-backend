@@ -1,5 +1,6 @@
 package com.resumerefiner.resumerefinerbackend.member.web;
 
+import com.resumerefiner.resumerefinerbackend.member.application.dto.ValidateEmailResponseDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.ValidateHandleResponseDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.ValidateInputUseCase;
 import jakarta.validation.Valid;
@@ -20,5 +21,10 @@ public class ValidatorController {
     @GetMapping("/handle/check")
     public ValidateHandleResponseDTO checkHandle(@Valid @RequestParam String handle) {
         return validateInputUseCase.validateHandle(handle);
+    }
+
+    @GetMapping("/email/check")
+    public ValidateEmailResponseDTO checkEmail(@Valid @RequestParam String email) {
+        return validateInputUseCase.validateEmail(email);
     }
 }
