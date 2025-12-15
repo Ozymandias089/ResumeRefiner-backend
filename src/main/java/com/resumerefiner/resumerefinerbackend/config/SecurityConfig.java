@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/profile").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/profile").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/profile/password").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/media/profile-image").authenticated()
                         .anyRequest().authenticated()
                 )
                 // 세션 기반 인증을 쓸 것이므로 stateless(X)
