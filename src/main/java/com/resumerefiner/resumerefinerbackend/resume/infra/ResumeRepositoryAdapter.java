@@ -33,4 +33,9 @@ public class ResumeRepositoryAdapter implements ResumeRepository {
     public List<Resume> findByMemberId(Long memberId) {
         return jpa.findByMemberId(memberId);
     }
+
+    @Override
+    public int countByMemberId(Long memberId) {
+        return jpa.countResumeByMemberId(memberId);
+    }
 }

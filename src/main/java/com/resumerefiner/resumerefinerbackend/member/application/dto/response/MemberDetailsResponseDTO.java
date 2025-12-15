@@ -11,11 +11,11 @@ public record MemberDetailsResponseDTO(
         String name,
         String role,
         boolean isActive,
+
         String provider,
-
         String providerUserId,
-        String profileImageUrl,
 
+        String profileImageUrl,
         int credits,
         Instant creditUpdatedAt,
         int resumeCount,

@@ -12,4 +12,6 @@ public interface ResumeRepository {
     Optional<Resume> findBySlug(String slug);
 
     List<Resume> findByMemberId(Long memberId);
+
+    int countByMemberId(Long memberId);
 }

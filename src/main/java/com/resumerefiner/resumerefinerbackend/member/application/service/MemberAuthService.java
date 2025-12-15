@@ -9,6 +9,8 @@ import com.resumerefiner.resumerefinerbackend.member.domain.Member;
 import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Email;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
+import com.resumerefiner.resumerefinerbackend.resume.domain.ResumeRepository;
+import com.resumerefiner.resumerefinerbackend.review.domain.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +26,8 @@ import java.time.Instant;
 public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, GetMeUseCase {
 
     private final MemberRepository memberRepository;
+    private final ResumeRepository resumeRepository;
+    private final ReviewRepository reviewRepository;
     private final MediaFileRepository mediaFileRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -32,7 +36,7 @@ public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, G
         Member member = memberRepository.findByHandle(new Handle(q.handle().getValue()))
                 .orElseThrow(() -> new IllegalArgumentException("MEMBER_NOT_FOUND"));
 
-        return toMemberSummary(member, 0, 0);
+        return toMemberSummary(member);
     }
 
     @Override
@@ -48,8 +52,7 @@ public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, G
             throw new IllegalStateException("MEMBER_INACTIVE");
         }
 
-        // TODO: resumeCount, reviewCount는 나중에 다른 레포지토리에서 계산해서 넘길 수 있음
-        return toMemberSummary(member, 0, 0);
+        return toMemberSummary(member);
     }
 
     @Override
@@ -75,10 +78,21 @@ public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, G
 
         Member savedMember = memberRepository.save(member);
         log.info("Member saved with id={}, handle={}", savedMember.getId(), savedMember.getHandle());
-        return toMemberSummary(savedMember, 0, 0);
+        return toMemberSummary(savedMember);
     }
 
-    private MemberSummaryDTO toMemberSummary(Member m, int resumeCount, int reviewCount) {
+    private MemberSummaryDTO toMemberSummary(Member m) {
+
+        int resumeCount = resumeRepository.countByMemberId(m.getId());
+        int reviewCount = reviewRepository.countByMemberId(m.getId());
+
+        // 2. 프로필 이미지 매핑
+        String profileImageUrl = null;
+        if (m.getProfileImageId() != null)
+            profileImageUrl = mediaFileRepository.findById(m.getProfileImageId())
+                    .orElseThrow(() -> new RuntimeException("Image Not Found"))
+                    .getUrl();
+
         return new MemberSummaryDTO(
                 m.getId(),
                 m.getHandle().getValue(),
@@ -86,8 +100,7 @@ public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, G
                 m.getName(),
                 m.getRole().name(),
                 m.isActive(),
-
-                null,
+                profileImageUrl,
 
                 m.getCredits(),
                 null,

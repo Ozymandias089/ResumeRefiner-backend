@@ -8,4 +8,8 @@ import java.util.List;
 public interface ReviewJpaRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByResumeId(Long resumeId);
+
+    int countByMemberId(Long memberId);
+
+    List<Review> findAllByMemberId(Long memberId);
 }
