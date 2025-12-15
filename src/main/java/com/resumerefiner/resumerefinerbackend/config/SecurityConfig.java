@@ -2,6 +2,7 @@ package com.resumerefiner.resumerefinerbackend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -30,10 +31,11 @@ public class SecurityConfig {
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/logout",
-                                "/api/auth/me",
                                 "/api/handle/check",
                                 "/api/email/check"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/profile").authenticated()
                         .anyRequest().authenticated()
                 )
                 // 세션 기반 인증을 쓸 것이므로 stateless(X)

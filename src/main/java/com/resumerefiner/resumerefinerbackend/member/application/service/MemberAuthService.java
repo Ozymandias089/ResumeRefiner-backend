@@ -3,7 +3,6 @@ package com.resumerefiner.resumerefinerbackend.member.application.service;
 import com.resumerefiner.resumerefinerbackend.media.domain.MediaFileRepository;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberSummaryDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetMeUseCase;
-import com.resumerefiner.resumerefinerbackend.member.application.port.in.LogOutUseCase;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.LoginUseCase;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.RegisterMemberUseCase;
 import com.resumerefiner.resumerefinerbackend.member.domain.Member;
@@ -22,7 +21,7 @@ import java.time.Instant;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, LogOutUseCase, GetMeUseCase {
+public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, GetMeUseCase {
 
     private final MemberRepository memberRepository;
     private final MediaFileRepository mediaFileRepository;
@@ -34,12 +33,6 @@ public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, L
                 .orElseThrow(() -> new IllegalArgumentException("MEMBER_NOT_FOUND"));
 
         return toMemberSummary(member, 0, 0);
-    }
-
-    @Override
-    public void logout(LogoutCommand command) {
-        log.info("Member logged out. handle={}", command.handle().getValue());
-        // TODO: lastLogoutAt 업데이트, audit 로그 남기기 등
     }
 
     @Override

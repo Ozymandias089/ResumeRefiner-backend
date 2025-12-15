@@ -6,7 +6,6 @@ import com.resumerefiner.resumerefinerbackend.member.application.dto.request.Log
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberSummaryDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.request.RegisterMemberRequestDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetMeUseCase;
-import com.resumerefiner.resumerefinerbackend.member.application.port.in.LogOutUseCase;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.LoginUseCase;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.RegisterMemberUseCase;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final RegisterMemberUseCase registerMemberUseCase;
     private final LoginUseCase loginUseCase;
-    private final LogOutUseCase logOutUseCase;
     private final GetMeUseCase getMeUseCase;
 
     @PostMapping(path = "/register", consumes = "application/json", produces = "application/json")
@@ -71,13 +69,7 @@ public class AuthController {
 
     @PostMapping(path = "/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
-        LoginMember loginMember = SessionUtil.getLoginMember(request);
         SessionUtil.invalidate(request);
-
-        if (loginMember != null) {
-            logOutUseCase.logout(new LogOutUseCase.LogoutCommand(new Handle(loginMember.handle())));
-        }
-
         return ResponseEntity.noContent().build(); // 204 No Content
     }
 
