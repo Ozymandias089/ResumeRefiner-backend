@@ -1,6 +1,6 @@
 package com.resumerefiner.resumerefinerbackend.global.util;
 
-import com.resumerefiner.resumerefinerbackend.member.application.dto.LoginMember;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.internal.LoginMember;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.NoArgsConstructor;

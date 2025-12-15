@@ -1,7 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.member.application.service;
 
 import com.resumerefiner.resumerefinerbackend.media.domain.MediaFileRepository;
-import com.resumerefiner.resumerefinerbackend.member.application.dto.MemberSummaryDTO;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberSummaryDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetMeUseCase;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.LogOutUseCase;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.LoginUseCase;

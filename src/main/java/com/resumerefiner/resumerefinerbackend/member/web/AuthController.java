@@ -1,10 +1,10 @@
 package com.resumerefiner.resumerefinerbackend.member.web;
 
 import com.resumerefiner.resumerefinerbackend.global.util.SessionUtil;
-import com.resumerefiner.resumerefinerbackend.member.application.dto.LoginMember;
-import com.resumerefiner.resumerefinerbackend.member.application.dto.LoginRequestDTO;
-import com.resumerefiner.resumerefinerbackend.member.application.dto.MemberSummaryDTO;
-import com.resumerefiner.resumerefinerbackend.member.application.dto.RegisterMemberRequestDTO;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.internal.LoginMember;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.request.LoginRequestDTO;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberSummaryDTO;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.request.RegisterMemberRequestDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetMeUseCase;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.LogOutUseCase;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.LoginUseCase;

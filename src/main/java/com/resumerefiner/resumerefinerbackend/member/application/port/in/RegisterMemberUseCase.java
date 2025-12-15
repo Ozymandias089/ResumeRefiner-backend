@@ -1,6 +1,6 @@
 package com.resumerefiner.resumerefinerbackend.member.application.port.in;
 
-import com.resumerefiner.resumerefinerbackend.member.application.dto.MemberSummaryDTO;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberSummaryDTO;
 
 public interface RegisterMemberUseCase {
     MemberSummaryDTO register(RegisterMemberCommand command);

@@ -1,7 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.member.web;
 
-import com.resumerefiner.resumerefinerbackend.member.application.dto.ValidateEmailResponseDTO;
-import com.resumerefiner.resumerefinerbackend.member.application.dto.ValidateHandleResponseDTO;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.response.ValidateEmailResponseDTO;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.response.ValidateHandleResponseDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.ValidateInputUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

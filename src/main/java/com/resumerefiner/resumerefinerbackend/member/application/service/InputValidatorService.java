@@ -1,7 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.member.application.service;
 
-import com.resumerefiner.resumerefinerbackend.member.application.dto.ValidateEmailResponseDTO;
-import com.resumerefiner.resumerefinerbackend.member.application.dto.ValidateHandleResponseDTO;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.response.ValidateEmailResponseDTO;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.response.ValidateHandleResponseDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.ValidateInputUseCase;
 import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Email;

@@ -1,4 +1,4 @@
-package com.resumerefiner.resumerefinerbackend.member.application.dto;
+package com.resumerefiner.resumerefinerbackend.member.application.dto.response;
 
 import java.time.Instant;
 

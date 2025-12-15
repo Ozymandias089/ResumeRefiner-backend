@@ -1,7 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.member.application.port.in;
 
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
-import com.resumerefiner.resumerefinerbackend.member.application.dto.MemberSummaryDTO;
+import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberSummaryDTO;
 
 public interface GetMeUseCase {
     MemberSummaryDTO getMe(GetMeCommand q);
