@@ -7,6 +7,7 @@ import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetProf
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.ManageProfileUseCase;
 import com.resumerefiner.resumerefinerbackend.member.domain.Member;
 import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
+import com.resumerefiner.resumerefinerbackend.member.domain.Provider;
 import com.resumerefiner.resumerefinerbackend.resume.domain.ResumeRepository;
 import com.resumerefiner.resumerefinerbackend.review.domain.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,63 @@ public class MemberProfileManagementService implements GetProfileUseCase, Manage
                 .orElseThrow(() -> new RuntimeException("Member Not found"));
         log.info("Getting member profile with id {}", member.getId());
 
-        // 2. 프로필 이미지 매핑
+        return toDTO(member);
+    }
+
+    @Override
+    @Transactional
+    public MemberDetailsResponseDTO changeUserInfo(ChangeInfoCommand command) {
+        Member member = memberRepository.findByHandle(command.handle())
+                .orElseThrow(() -> new RuntimeException("Member Not found"));
+
+        if (command.newName() != null) {
+            member.changeName(command.newName());
+            log.info("Changing member name to '{}'", command.newName());
+        }
+
+        if (command.email() != null) {
+            if (member.getProvider() != Provider.LOCAL) {
+                log.error("Cannot change user's email address to '{}'", command.email());
+                throw new IllegalStateException("social login user cannot change email");
+            }
+            member.changeEmail(command.email());
+            log.info("Changing member email to '{}'", command.email());
+        }
+
+        memberRepository.save(member);
+        return toDTO(member);
+    }
+
+    @Override
+    @Transactional
+    public ChangePasswordResponseDTO changePassword(ChangePasswordCommand command) {
+        Member member = memberRepository.findByHandle(command.handle())
+                .orElseThrow(() -> new RuntimeException("Member Not found"));
+
+        if (member.getProvider() != Provider.LOCAL) {
+            log.debug("Changing member profile password forbidden");
+            throw new IllegalStateException("social login user cannot change password");
+        }
+
+        // raw vs encoded
+        if (!passwordEncoder.matches(command.currentPassword(), member.getPasswordHash())) {
+            log.error("Passwords don't match");
+            throw new IllegalArgumentException("current password mismatch");
+        }
+
+        String newHash = passwordEncoder.encode(command.newPassword());
+        member.changePassword(newHash); // 내부에서 provider LOCAL 체크는 있어도 ok
+        log.info("Changing member profile password");
+
+        // save는 선택: JPA면 dirty checking으로 없어도 됨
+        memberRepository.save(member);
+
+        return ChangePasswordResponseDTO.builder()
+                .message("Password changed")
+                .build();
+    }
+
+    private MemberDetailsResponseDTO toDTO(Member member) {
         String profileImageUrl = null;
         if (member.getProfileImageId() != null)
             profileImageUrl = mediaFileRepository.findById(member.getProfileImageId())
@@ -43,9 +100,6 @@ public class MemberProfileManagementService implements GetProfileUseCase, Manage
         // 3. 사용자의 id로 리뷰, 이력서 수 검색
         int resumeCount = resumeRepository.countByMemberId(member.getId());
         int reviewCount = reviewRepository.countByMemberId(member.getId());
-        log.debug("resume count {} with review count {}", resumeCount, reviewCount);
-
-        // TODO: resolve creditUpdatedAt
 
         // 4. 매핑 + 반환
         return MemberDetailsResponseDTO.builder()
@@ -65,28 +119,5 @@ public class MemberProfileManagementService implements GetProfileUseCase, Manage
                 .createdAt(member.getCreatedAt())
                 .updatedAt(member.getUpdatedAt())
                 .build();
-    }
-
-    @Override
-    @Transactional
-    public MemberDetailsResponseDTO changeUserInfo(ChangeInfoCommand command) {
-        // 1. 커맨드에서 핸들을 통해 정보를 불러온다. 필요한 정보는 이름, 이메일, 프로바이더이다.
-        // 2. 프로바이더가 로컬이 아닌 경우 이메일을 수정할 수 없다.
-        // 3. 커맨드 중 null이 아닌 것들만 적용한다.
-        // 4. 저장한다.
-        // 5. 반환한다.
-        return null;
-    }
-
-    @Override
-    @Transactional
-    public ChangePasswordResponseDTO changePassword(ChangePasswordCommand command) {
-        // 1. 커맨드에서 핸들을 통해 정보를 불러온다. 이때 정보는 핸들, 패스워드, 프로바이더이다.
-        // 2. 프로바이더가 로컬이 아닌 경우 패스워드가 null일 것이다. 이때 에러를 던진다.
-        // 2. 불러온 패스워드와 DTO로 받은 기존 패스워드가 일치하는지 판단한다.
-        // 3. 새 패스워드를 적용한다.
-        // 4. 저장한다.
-        // 5. 반환한다.
-        return null;
     }
 }
