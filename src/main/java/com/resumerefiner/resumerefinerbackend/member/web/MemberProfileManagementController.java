@@ -1,21 +1,24 @@
 package com.resumerefiner.resumerefinerbackend.member.web;
 
-import com.resumerefiner.resumerefinerbackend.member.application.dto.internal.LoginMember;
+import com.resumerefiner.resumerefinerbackend.global.security.AuthenticatedMember;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.request.ChangePasswordRequestDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.request.ChangeProfileInfoRequestDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.ChangePasswordResponseDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberDetailsResponseDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetProfileUseCase;
+import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetProfileUseCase.GetProfileCommand;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.ManageProfileUseCase;
+import com.resumerefiner.resumerefinerbackend.member.application.port.in.ManageProfileUseCase.ChangePasswordCommand;
+import com.resumerefiner.resumerefinerbackend.member.application.port.in.ManageProfileUseCase.ChangeInfoCommand;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Email;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/profile")
 @RequiredArgsConstructor
@@ -24,63 +27,39 @@ public class MemberProfileManagementController {
     private final ManageProfileUseCase manageProfileUseCase;
 
     @GetMapping(produces = "application/json")
-    public ResponseEntity<MemberDetailsResponseDTO> getProfile(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session == null) throw new IllegalStateException("UNAUTHORIZED");
-
-        LoginMember login = (LoginMember) session.getAttribute("LOGIN_MEMBER");
-        if (login == null) throw new IllegalStateException("UNAUTHORIZED");
-
+    public ResponseEntity<MemberDetailsResponseDTO> getProfile(@AuthenticatedMember Handle handle) {
         return ResponseEntity.ok(
-                getProfileUseCase.getMyProfile(
-                        new GetProfileUseCase.GetProfileCommand(
-                                Handle.of(login.handle())
-                        )
-                )
+                getProfileUseCase.getMyProfile(new GetProfileCommand(handle))
         );
     }
 
     @PatchMapping(consumes = "application/json", produces = "application/json")
     public ResponseEntity<MemberDetailsResponseDTO> updateProfile(
-            HttpServletRequest request,
+            @AuthenticatedMember Handle handle,
             @Valid @RequestBody ChangeProfileInfoRequestDTO dto
     ) {
-        HttpSession session = request.getSession(false);
-        if (session == null) throw new IllegalStateException("UNAUTHORIZED");
 
-        LoginMember login = (LoginMember) session.getAttribute("LOGIN_MEMBER");
-        if (login == null) throw new IllegalStateException("UNAUTHORIZED");
+        String name = (dto.name() == null || dto.name().isBlank())
+                ? null
+                : dto.name();
+
+        Email email = (dto.email() == null || dto.email().isBlank())
+                ? null
+                : Email.of(dto.email());
 
         return ResponseEntity.ok(
-                manageProfileUseCase.changeUserInfo(
-                        new ManageProfileUseCase.ChangeInfoCommand(
-                                Handle.of(login.handle()),
-                                Email.of(dto.email()),
-                                dto.name()
-                        )
-                )
+                manageProfileUseCase.changeUserInfo(new ChangeInfoCommand(handle, email, name))
         );
     }
 
     @PatchMapping(path = "/password", consumes = "application/json", produces = "application/json")
     public ResponseEntity<ChangePasswordResponseDTO> changePassword(
-            HttpServletRequest request,
+            @AuthenticatedMember Handle handle,
             @Valid @RequestBody ChangePasswordRequestDTO dto
     ) {
-        HttpSession session = request.getSession(false);
-        if (session == null) throw new IllegalStateException("UNAUTHORIZED");
-
-        LoginMember login = (LoginMember) session.getAttribute("LOGIN_MEMBER");
-        if (login == null) throw new IllegalStateException("UNAUTHORIZED");
-
-        return ResponseEntity.ok(
-                manageProfileUseCase.changePassword(
-                        new ManageProfileUseCase.ChangePasswordCommand(
-                                Handle.of(login.handle()),
-                                dto.oldPassword(),
-                                dto.newPassword()
-                        )
-                )
-        );
+        return ResponseEntity
+                .ok(manageProfileUseCase.changePassword(
+                        new ChangePasswordCommand(handle, dto.oldPassword(), dto.newPassword()))
+                );
     }
 }

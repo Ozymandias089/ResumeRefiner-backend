@@ -29,9 +29,12 @@ public class MemberProfileManagementService implements GetProfileUseCase, Manage
 
     @Override
     public MemberDetailsResponseDTO getMyProfile(GetProfileCommand command) {
+        log.info("POST /api/profile Service Entry with Handle: {}", command.handle().toString());
         // 1. 커맨드에서 핸들을 통해 정보를 불러온다.
         Member member = memberRepository.findByHandle(command.handle())
                 .orElseThrow(() -> new RuntimeException("Member Not found"));
+        log.info("POST /api/profile Service \n Member {} found with id: {}", member.getHandle().toString(), member.getId());
+
         log.info("Getting member profile with id {}", member.getId());
 
         return toDTO(member);
@@ -97,9 +100,12 @@ public class MemberProfileManagementService implements GetProfileUseCase, Manage
                     .orElseThrow(() -> new RuntimeException("Image Not Found"))
                     .getUrl();
 
+        log.info("SERVICE: Getting member profile image");
+
         // 3. 사용자의 id로 리뷰, 이력서 수 검색
         int resumeCount = resumeRepository.countByMemberId(member.getId());
         int reviewCount = reviewRepository.countByMemberId(member.getId());
+        log.info("SERVICE: Counting Resumes({}) and reviews({})", resumeCount, reviewCount);
 
         // 4. 매핑 + 반환
         return MemberDetailsResponseDTO.builder()
