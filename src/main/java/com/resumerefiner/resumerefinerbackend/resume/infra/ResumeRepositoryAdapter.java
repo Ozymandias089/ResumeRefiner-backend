@@ -2,6 +2,7 @@ package com.resumerefiner.resumerefinerbackend.resume.infra;
 
 import com.resumerefiner.resumerefinerbackend.resume.domain.Resume;
 import com.resumerefiner.resumerefinerbackend.resume.domain.ResumeRepository;
+import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeSlug;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -25,7 +26,7 @@ public class ResumeRepositoryAdapter implements ResumeRepository {
     }
 
     @Override
-    public Optional<Resume> findBySlug(String slug) {
+    public Optional<Resume> findBySlug(ResumeSlug slug) {
         return jpa.findBySlug(slug);
     }
 

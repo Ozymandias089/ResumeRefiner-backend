@@ -9,5 +9,7 @@ public interface MediaFileRepository {
 
     Optional<MediaFile> findById(Long id);
 
+    Optional<String> findUrlById(Long id);
+
     List<MediaFile> findByOwner(MediaOwnerType ownerType, Long ownerId);
 }

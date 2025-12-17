@@ -22,7 +22,7 @@ public class CreateResumeController {
     private final CreateResumeUseCase createResumeUseCase;
     private final CreateResumeMapper createResumeMapper;
 
-    @PostMapping(path = "/resume", consumes = "application/json", produces = "application/json")
+    @PostMapping(path = "/resumes", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Void> createResume(
             @AuthenticatedMember Handle handle,
             @Valid @RequestBody CreateResumeRequestDTO dto
@@ -30,7 +30,7 @@ public class CreateResumeController {
 
         String slug = createResumeUseCase.create(createResumeMapper.toCommand(handle, dto));
 
-        URI location = URI.create("/api/resume" + slug);
+        URI location = URI.create("/api/resumes" + slug);
         return ResponseEntity.created(location).build();
     }
 }

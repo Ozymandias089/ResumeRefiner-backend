@@ -54,6 +54,6 @@ public class ContactEmail implements ValueObject {
 
     @Override
     public String toString() {
-        return value;
+        return value == null ? "" : value;
     }
 }

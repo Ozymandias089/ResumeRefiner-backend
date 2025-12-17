@@ -26,6 +26,11 @@ public class MediaFileRepositoryAdapter implements MediaFileRepository {
     }
 
     @Override
+    public Optional<String> findUrlById(Long id) {
+        return jpa.findUrlById(id);
+    }
+
+    @Override
     public List<MediaFile> findByOwner(MediaOwnerType ownerType, Long ownerId) {
         return jpa.findByOwnerTypeAndOwnerId(ownerType, ownerId);
     }
