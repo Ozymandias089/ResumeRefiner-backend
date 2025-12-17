@@ -21,7 +21,7 @@ public class Email {
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String value;
 
-    private Email(String value) {
+    public Email(String value) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("email must not be blank");
         }

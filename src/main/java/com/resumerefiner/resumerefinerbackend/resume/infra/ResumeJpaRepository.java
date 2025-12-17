@@ -11,4 +11,6 @@ public interface ResumeJpaRepository extends JpaRepository<Resume, Long> {
     Optional<Resume> findBySlug(String slug);
 
     List<Resume> findByMemberId(Long memberId);
+
+    int countResumeByMemberId(Long memberId);
 }

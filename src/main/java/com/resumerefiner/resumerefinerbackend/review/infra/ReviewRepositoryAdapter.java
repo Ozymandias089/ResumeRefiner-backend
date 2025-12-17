@@ -28,4 +28,14 @@ public class ReviewRepositoryAdapter implements ReviewRepository {
     public List<Review> findByResumeId(Long resumeId) {
         return jpa.findByResumeId(resumeId);
     }
+
+    @Override
+    public int countByMemberId(Long memberId) {
+        return jpa.countByMemberId(memberId);
+    }
+
+    @Override
+    public List<Review> findAllByMemberId(Long memberId) {
+        return jpa.findAllByMemberId(memberId);
+    }
 }

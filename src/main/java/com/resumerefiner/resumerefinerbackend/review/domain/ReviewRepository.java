@@ -10,4 +10,7 @@ public interface ReviewRepository {
     Optional<Review> findById(Long id);
 
     List<Review> findByResumeId(Long resumeId);
+
+    int countByMemberId(Long memberId);
+    List<Review> findAllByMemberId(Long memberId);
 }

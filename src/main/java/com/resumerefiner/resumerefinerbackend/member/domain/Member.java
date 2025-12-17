@@ -117,6 +117,21 @@ public class Member extends BaseTimeEntity implements AggregateRoot {
         this.name = newName;
     }
 
+    public void changeEmail(Email newEmail) {
+        if (newEmail == null || newEmail.getValue().isBlank()) throw new IllegalArgumentException("email must not be blank");
+        this.email = newEmail;
+    }
+
+    /**
+     * 패스워드를 변경한다. newPassword는 해싱해서 넣어야 하며, provider가 local이 아닌 경우 아무것도 하지 않는다.
+     * @param newPassword hashing된 새 패스워드
+     */
+    public void changePassword(String newPassword) {
+        if (newPassword == null || newPassword.isBlank()) throw new IllegalArgumentException("password must not be blank");
+        if (this.provider != Provider.LOCAL) return;
+        this.passwordHash = newPassword;
+    }
+
     public void deactivate() { this.isActive = false; }
 
     public void activate() { this.isActive = true; }
