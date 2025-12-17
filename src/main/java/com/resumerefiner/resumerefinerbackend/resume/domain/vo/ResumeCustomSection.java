@@ -6,6 +6,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,6 +36,7 @@ public class ResumeCustomSection implements ValueObject {
     @Column(name = "display_order", nullable = false)
     private int displayOrder;
 
+    @Builder(access = AccessLevel.PRIVATE)
     private ResumeCustomSection(
             ResumeSectionType type,
             String subject,
@@ -57,7 +59,12 @@ public class ResumeCustomSection implements ValueObject {
             String content,
             int displayOrder
     ) {
-        return new ResumeCustomSection(type, subject, content, displayOrder);
+        return ResumeCustomSection.builder()
+                .type(type)
+                .subject(subject)
+                .content(content)
+                .displayOrder(displayOrder)
+                .build();
     }
 
     public static ResumeCustomSection ofMinimal(
@@ -65,7 +72,11 @@ public class ResumeCustomSection implements ValueObject {
             String content,
             int displayOrder
     ) {
-        return new ResumeCustomSection(null, subject, content, displayOrder);
+        return ResumeCustomSection.builder()
+                .subject(subject)
+                .content(content)
+                .displayOrder(displayOrder)
+                .build();
     }
 
     /* ---------------------------

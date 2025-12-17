@@ -6,6 +6,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -45,6 +46,7 @@ public class ResumeEducation implements ValueObject {
     @Column(name = "display_order", nullable = false)
     private int displayOrder;
 
+    @Builder(access = AccessLevel.PRIVATE)
     private ResumeEducation(
             String schoolName,
             String major,
@@ -73,11 +75,22 @@ public class ResumeEducation implements ValueObject {
             String description,
             int displayOrder
     ) {
-        return new ResumeEducation(schoolName, major, degree, period, description, displayOrder);
+        return ResumeEducation.builder()
+                .schoolName(schoolName)
+                .major(major)
+                .degree(degree)
+                .period(period)
+                .description(description)
+                .displayOrder(displayOrder)
+                .build();
     }
 
     public static ResumeEducation ofMinimal(String schoolName, int displayOrder) {
-        return new ResumeEducation(schoolName, null, null, null, null, displayOrder);
+
+        return ResumeEducation.builder()
+                .schoolName(schoolName)
+                .displayOrder(displayOrder)
+                .build();
     }
 
     /* ---------------------------

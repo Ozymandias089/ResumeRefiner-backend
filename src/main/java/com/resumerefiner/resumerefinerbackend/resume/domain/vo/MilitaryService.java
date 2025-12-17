@@ -6,6 +6,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -41,6 +42,7 @@ public class MilitaryService implements ValueObject {
     @Column(name = "military_notes", length = NOTES_MAX)
     private String notes; // optional
 
+    @Builder(access = AccessLevel.PRIVATE)
     private MilitaryService(
             MilitaryStatus status,
             MilitaryBranch branch,
@@ -66,7 +68,13 @@ public class MilitaryService implements ValueObject {
             String rank,
             String notes
     ) {
-        return new MilitaryService(status, branch, period, rank, notes);
+        return MilitaryService.builder()
+                .status(status)
+                .branch(branch)
+                .period(period)
+                .rank(rank)
+                .notes(notes)
+                .build();
     }
 
     /** 병역 없음/해당 없음 같은 상태만 표현하고 싶을 때 */

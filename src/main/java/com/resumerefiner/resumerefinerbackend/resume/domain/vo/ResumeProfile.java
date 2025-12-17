@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,6 +35,7 @@ public class ResumeProfile implements ValueObject {
     @Column(name = "profile_location", length = LOCATION_MAX)
     private String location; // optional
 
+    @Builder(access = AccessLevel.PRIVATE)
     private ResumeProfile(String name, ContactEmail email, String phone, String location) {
         this.name = normalizeRequiredName(name);
         this.email = email; // ContactEmail이 검증 책임
@@ -46,7 +48,9 @@ public class ResumeProfile implements ValueObject {
      * --------------------------- */
 
     public static ResumeProfile ofName(String name) {
-        return new ResumeProfile(name, null, null, null);
+        return ResumeProfile.builder()
+                .name(name)
+                .build();
     }
 
     public static ResumeProfile of(
@@ -55,16 +59,18 @@ public class ResumeProfile implements ValueObject {
             String phone,
             String location
     ) {
-        return new ResumeProfile(
-                name,
-                ContactEmail.of(email),
-                phone,
-                location
-        );
+        return ResumeProfile.builder()
+                .name(name)
+                .email(ContactEmail.of(email))
+                .phone(phone)
+                .location(location)
+                .build();
     }
 
     public static ResumeProfile anonymous() {
-        return new ResumeProfile("익명", null, null, null);
+        return ResumeProfile.builder()
+                .name("익명")
+                .build();
     }
 
     /* ---------------------------

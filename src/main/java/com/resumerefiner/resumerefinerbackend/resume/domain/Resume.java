@@ -5,6 +5,7 @@ import com.resumerefiner.resumerefinerbackend.global.shared.domain.AggregateRoot
 import com.resumerefiner.resumerefinerbackend.resume.domain.vo.*;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -99,26 +100,54 @@ public class Resume extends BaseTimeEntity implements AggregateRoot {
      * Factory (예시)
      * --------------------------- */
 
+    @Builder(access = AccessLevel.PRIVATE)
+    private Resume(
+            Long memberId,
+            String title,
+            LanguageCode languageCode,
+            ResumeProfile profile,
+            MilitaryService militaryService,
+            List<ResumeEducation> educations,
+            List<ResumeExperience> experiences,
+            List<ResumeCustomSection> customSections
+    ) {
+        if (memberId == null) throw new IllegalArgumentException("memberId required");
+        if (title == null || title.isBlank()) throw new IllegalArgumentException("title required");
+        if (languageCode == null) throw new IllegalArgumentException("languageCode required");
+        if (profile == null) throw new IllegalArgumentException("profile required");
+        if (militaryService == null) throw new IllegalArgumentException("militaryService required");
+
+        this.memberId = memberId;
+        this.slug = ResumeSlug.random();
+        this.title = title;
+        this.languageCode = languageCode;
+        this.profile = profile;
+        this.militaryService = militaryService;
+        this.educations = educations == null ? List.of() : List.copyOf(educations);
+        this.experiences = experiences == null ? List.of() : List.copyOf(experiences);
+        this.customSections = customSections == null ? List.of() : List.copyOf(customSections);
+    }
+
     public static Resume create(
             Long memberId,
-            ResumeSlug slug,
             String title,
-            LanguageCode languageCode
+            LanguageCode languageCode,
+            ResumeProfile resumeProfile,
+            MilitaryService military,
+            List<ResumeEducation> educations,
+            List<ResumeExperience> experiences,
+            List<ResumeCustomSection> customSections
     ) {
-        Resume r = new Resume();
-        r.memberId = memberId;
-        r.slug = slug;
-        r.title = title;
-        r.languageCode = languageCode;
-
-        // 최소 기본값(UX에서 바로 편집 가능하게)
-        r.profile = ResumeProfile.ofName("익명");
-        r.educations = new ArrayList<>();
-        r.experiences = new ArrayList<>();
-        r.customSections = new ArrayList<>();
-        r.militaryService = null;
-
-        return r;
+        return Resume.builder()
+                .memberId(memberId)
+                .title(title)
+                .languageCode(languageCode)
+                .profile(resumeProfile)
+                .militaryService(military)
+                .educations(educations)
+                .experiences(experiences)
+                .customSections(customSections)
+                .build();
     }
 
     /* ---------------------------

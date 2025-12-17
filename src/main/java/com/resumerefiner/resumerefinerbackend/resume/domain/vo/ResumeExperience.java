@@ -4,6 +4,7 @@ import com.resumerefiner.resumerefinerbackend.global.shared.domain.ValueObject;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,6 +39,7 @@ public class ResumeExperience implements ValueObject {
     @Column(name = "display_order", nullable = false)
     private int displayOrder;
 
+    @Builder(access = AccessLevel.PRIVATE)
     private ResumeExperience(
             String company,
             String role,
@@ -63,7 +65,13 @@ public class ResumeExperience implements ValueObject {
             String description,
             int displayOrder
     ) {
-        return new ResumeExperience(company, role, period, description, displayOrder);
+        return ResumeExperience.builder()
+                .company(company)
+                .role(role)
+                .period(period)
+                .description(description)
+                .displayOrder(displayOrder)
+                .build();
     }
 
     public static ResumeExperience ofMinimal(
@@ -72,7 +80,12 @@ public class ResumeExperience implements ValueObject {
             String period,
             int displayOrder
     ) {
-        return new ResumeExperience(company, role, period, null, displayOrder);
+        return ResumeExperience.builder()
+                .company(company)
+                .role(role)
+                .period(period)
+                .displayOrder(displayOrder)
+                .build();
     }
 
     /* ---------------------------

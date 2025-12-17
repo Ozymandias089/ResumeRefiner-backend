@@ -1,6 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.resume.domain.vo;
 
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.ValueObject;
+import com.resumerefiner.resumerefinerbackend.global.shared.util.ResumeSlugGenerator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -18,23 +19,18 @@ public class ResumeSlug implements ValueObject {
     private String value;
 
     private ResumeSlug(String value) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("slug must not be blank");
-        }
-        if (value.length() > MAX_LENGTH) {
-            throw new IllegalArgumentException("slug exceeds length limit");
-        }
-        this.value = value;
+        String v = value == null ? "" : value.trim();
+        if (v.isBlank()) throw new IllegalArgumentException("slug must not be blank");
+        if (v.length() > MAX_LENGTH) throw new IllegalArgumentException("slug exceeds length limit");
+        this.value = v;
     }
 
-    /** 외부 입력용 (정말 필요할 때만) */
+    public static ResumeSlug random() {
+        return new ResumeSlug(ResumeSlugGenerator.generate());
+    }
+
     public static ResumeSlug of(String value) {
         return new ResumeSlug(value);
-    }
-
-    /** 랜덤 생성용 (주 사용 경로) */
-    public static ResumeSlug random() {
-//        return new ResumeSlug(ResumeSlugGenerator.generate());
     }
 
     @Override
