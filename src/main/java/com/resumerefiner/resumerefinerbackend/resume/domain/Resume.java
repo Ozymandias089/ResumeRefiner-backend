@@ -115,7 +115,6 @@ public class Resume extends BaseTimeEntity implements AggregateRoot {
         if (title == null || title.isBlank()) throw new IllegalArgumentException("title required");
         if (languageCode == null) throw new IllegalArgumentException("languageCode required");
         if (profile == null) throw new IllegalArgumentException("profile required");
-        if (militaryService == null) throw new IllegalArgumentException("militaryService required");
 
         this.memberId = memberId;
         this.slug = ResumeSlug.random();

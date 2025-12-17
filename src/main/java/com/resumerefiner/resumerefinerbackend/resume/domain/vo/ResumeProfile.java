@@ -53,15 +53,10 @@ public class ResumeProfile implements ValueObject {
                 .build();
     }
 
-    public static ResumeProfile of(
-            String name,
-            String email,
-            String phone,
-            String location
-    ) {
+    public static ResumeProfile of(String name, String email, String phone, String location) {
         return ResumeProfile.builder()
                 .name(name)
-                .email(ContactEmail.of(email))
+                .email(email == null ? null : ContactEmail.of(email))
                 .phone(phone)
                 .location(location)
                 .build();
@@ -72,6 +67,24 @@ public class ResumeProfile implements ValueObject {
                 .name("익명")
                 .build();
     }
+
+    public static ResumeProfile fromNullable(
+            String name,
+            String email,
+            String phone,
+            String location
+    ) {
+        // name이 없으면 익명 프로필로 degrade
+        if (name == null || name.isBlank()) return anonymous();
+
+        return ResumeProfile.builder()
+                .name(name)
+                .email(email == null ? null : ContactEmail.of(email)) // null-safe
+                .phone(phone)
+                .location(location)
+                .build();
+    }
+
 
     /* ---------------------------
      * Domain actions

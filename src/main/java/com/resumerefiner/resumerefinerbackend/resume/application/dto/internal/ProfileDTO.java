@@ -3,7 +3,6 @@ package com.resumerefiner.resumerefinerbackend.resume.application.dto.internal;
 import jakarta.validation.constraints.*;
 
 public record ProfileDTO(
-        @NotBlank
         @Size(max = 100)
         String name,
 

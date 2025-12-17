@@ -50,4 +50,9 @@ public class MemberRepositoryAdapter implements MemberRepository {
     public Optional<Member> findByProviderAndProviderUserId(Provider provider, String providerUserId) {
         return jpa.findByProviderAndProviderUserId(provider, providerUserId);
     }
+
+    @Override
+    public Optional<Long> findMemberIdByHandle(Handle handle) {
+        return jpa.findIdByHandle(handle);
+    }
 }

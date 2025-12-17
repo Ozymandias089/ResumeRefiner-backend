@@ -82,6 +82,27 @@ public class MilitaryService implements ValueObject {
         return new MilitaryService(status, null, null, null, null);
     }
 
+    public static MilitaryService fromNullable(
+            MilitaryStatus status,
+            MilitaryBranch branch,
+            String period,
+            String rank,
+            String notes
+    ) {
+        // status가 없으면 military 자체가 없다고 판단
+        if (status == null) return null;
+
+        // status만 있고 나머지 없어도 표현하고 싶으면 ofStatus로
+        if (branch == null && (period == null || period.isBlank())
+                && (rank == null || rank.isBlank())
+                && (notes == null || notes.isBlank())) {
+            return ofStatus(status);
+        }
+
+        return of(status, branch, period, rank, notes);
+    }
+
+
     /* ---------------------------
      * Domain actions
      * --------------------------- */

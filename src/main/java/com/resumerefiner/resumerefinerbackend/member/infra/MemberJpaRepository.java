@@ -19,4 +19,6 @@ public interface MemberJpaRepository extends JpaRepository<Member, Long> {
     boolean existsByHandle(Handle handle);
 
     Optional<Member> findByProviderAndProviderUserId(Provider provider, String providerUserId);
+
+    Optional<Long> findIdByHandle(Handle handle);
 }
