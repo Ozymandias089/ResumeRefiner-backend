@@ -2,11 +2,7 @@ package com.resumerefiner.resumerefinerbackend.resume.domain;
 
 import com.resumerefiner.resumerefinerbackend.global.jpa.BaseTimeEntity;
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.AggregateRoot;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.MilitaryService;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeCustomSection;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeEducation;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeExperience;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeProfile;
+import com.resumerefiner.resumerefinerbackend.resume.domain.vo.*;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
