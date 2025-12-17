@@ -18,7 +18,7 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class ResumeController {
+public class CreateResumeController {
     private final CreateResumeUseCase createResumeUseCase;
     private final CreateResumeMapper createResumeMapper;
 
@@ -29,7 +29,7 @@ public class ResumeController {
             ){
 
         String slug = createResumeUseCase.create(createResumeMapper.toCommand(handle, dto));
-        
+
         URI location = URI.create("/api/resume" + slug);
         return ResponseEntity.created(location).build();
     }

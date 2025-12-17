@@ -1,6 +1,5 @@
 package com.resumerefiner.resumerefinerbackend.resume.application.service;
 
-import com.resumerefiner.resumerefinerbackend.member.domain.Member;
 import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
 import com.resumerefiner.resumerefinerbackend.resume.application.ports.in.CreateResumeUseCase;
 import com.resumerefiner.resumerefinerbackend.resume.domain.Resume;
@@ -17,7 +16,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ResumeService implements CreateResumeUseCase {
+public class CreateResumeService implements CreateResumeUseCase {
     private final ResumeRepository resumeRepository;
     private final MemberRepository memberRepository;
     private final ResumeAssembler resumeAssembler;
