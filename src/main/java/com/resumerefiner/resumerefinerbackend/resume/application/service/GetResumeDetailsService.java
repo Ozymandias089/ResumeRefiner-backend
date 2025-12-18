@@ -4,11 +4,18 @@ import com.resumerefiner.resumerefinerbackend.media.domain.MediaFileRepository;
 import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
 import com.resumerefiner.resumerefinerbackend.resume.application.dto.internal.*;
 import com.resumerefiner.resumerefinerbackend.resume.application.dto.response.GetResumeResponseDTO;
+import com.resumerefiner.resumerefinerbackend.resume.application.dto.response.GetResumeSummaryListResponseDTO;
 import com.resumerefiner.resumerefinerbackend.resume.application.ports.in.GetResumeDetailsUseCase;
+import com.resumerefiner.resumerefinerbackend.resume.application.ports.in.PageResumeUseCase;
+import com.resumerefiner.resumerefinerbackend.resume.application.ports.out.ResumeSummaryProjection;
 import com.resumerefiner.resumerefinerbackend.resume.domain.Resume;
 import com.resumerefiner.resumerefinerbackend.resume.domain.ResumeRepository;
+import com.resumerefiner.resumerefinerbackend.resume.domain.ResumeSort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +24,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GetResumeDetailsService implements GetResumeDetailsUseCase {
+public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageResumeUseCase {
     private final MemberRepository memberRepository;
     private final ResumeRepository resumeRepository;
     private final MediaFileRepository mediaFileRepository;
@@ -104,6 +111,43 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase {
                 .educations(educations)
                 .experiences(experiences)
                 .customSections(customSections)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public GetResumeSummaryListResponseDTO getResumeSummaryList(GetResumeSummaryCommand command) {
+        // Fetch Member ID with Handle
+        Long memberId = memberRepository.findMemberIdByHandle(command.handle())
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+
+        // Create Pageable Object
+        ResumeSort sort = command.sort() != null ? command.sort() : ResumeSort.UPDATED_AT_DESC;
+        int page = Math.max(command.page(), 0);
+        int size = Math.min(Math.max(command.size(), 1), 50);
+        Pageable pageable = PageRequest.of(page, size, ResumeSort.toSort(sort));
+
+        // Query Summary Projection with id, pageable
+        Page<ResumeSummaryProjection> resumes = resumeRepository.findResumeSummaries(memberId, pageable);
+
+        // Map to DTO
+        return GetResumeSummaryListResponseDTO.builder()
+                .resumes(
+                        resumes.getContent().stream()
+                                .map(e -> ResumeSummaryDTO.builder()
+                                        .slug(e.slug().toString())
+                                        .title(e.title())
+                                        .createdAt(e.createdAt())
+                                        .updatedAt(e.updatedAt())
+                                        .reviewCount(e.reviewCount())
+                                        .build()
+                                ).toList()
+                )
+                .page(resumes.getNumber())
+                .size(resumes.getSize())
+                .totalElements(resumes.getTotalElements())
+                .hasPrev(resumes.hasPrevious())
+                .hasNext(resumes.hasNext())
                 .build();
     }
 

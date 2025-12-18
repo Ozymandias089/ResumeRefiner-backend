@@ -1,9 +1,12 @@
 package com.resumerefiner.resumerefinerbackend.resume.infra;
 
+import com.resumerefiner.resumerefinerbackend.resume.application.ports.out.ResumeSummaryProjection;
 import com.resumerefiner.resumerefinerbackend.resume.domain.Resume;
 import com.resumerefiner.resumerefinerbackend.resume.domain.ResumeRepository;
 import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeSlug;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -38,5 +41,18 @@ public class ResumeRepositoryAdapter implements ResumeRepository {
     @Override
     public int countByMemberId(Long memberId) {
         return jpa.countResumeByMemberId(memberId);
+    }
+
+    @Override
+    public Page<ResumeSummaryProjection> findResumeSummaries(Long memberId, Pageable pageable) {
+        return jpa.findSummaryRowsByMemberId(memberId, pageable)
+                .map(row -> ResumeSummaryProjection.builder()
+                        .slug(row.getSlug())
+                        .title(row.getTitle())
+                        .createdAt(row.getCreatedAt())
+                        .updatedAt(row.getUpdatedAt())
+                        .reviewCount(0L)
+                        .build()
+                );
     }
 }

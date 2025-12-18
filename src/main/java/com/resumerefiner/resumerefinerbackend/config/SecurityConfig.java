@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/profile/password").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/media/profile-image").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/resumes").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/resumes").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/resumes/{slug}").authenticated()
                         .anyRequest().authenticated()
                 )
