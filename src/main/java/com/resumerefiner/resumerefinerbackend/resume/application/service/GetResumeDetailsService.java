@@ -103,7 +103,7 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
                 .slug(resume.getSlug().getValue()) // ✅ toString보다 value 권장
                 .title(resume.getTitle())
                 .createdAt(resume.getCreatedAt())
-                .modifiedAt(resume.getUpdatedAt())
+                .updatedAt(resume.getUpdatedAt())
                 .languageCode(resume.getLanguageCode())
                 .photoUrl(imageUrl)
                 .profile(profile)

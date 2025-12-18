@@ -12,7 +12,7 @@ public record GetResumeResponseDTO(
         String slug,
         String title,
         Instant createdAt,
-        Instant modifiedAt,
+        Instant updatedAt,
         LanguageCode languageCode,
         String photoUrl,
         ProfileDTO profile,
