@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/resumes").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/resumes").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/resumes/{slug}").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/resumes/{slug}").authenticated()
                         .anyRequest().authenticated()
                 )
                 // 세션 기반 인증을 쓸 것이므로 stateless(X)

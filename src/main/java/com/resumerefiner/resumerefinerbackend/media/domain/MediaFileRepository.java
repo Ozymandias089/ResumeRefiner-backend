@@ -12,4 +12,8 @@ public interface MediaFileRepository {
     Optional<String> findUrlById(Long id);
 
     List<MediaFile> findByOwner(MediaOwnerType ownerType, Long ownerId);
+
+    void delete(MediaFile mediaFile);
+
+    void deleteByOwnerTypeAndOwnerId(MediaOwnerType ownerType, Long ownerId);
 }

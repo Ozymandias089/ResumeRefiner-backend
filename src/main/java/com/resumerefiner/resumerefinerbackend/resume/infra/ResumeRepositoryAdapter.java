@@ -24,6 +24,11 @@ public class ResumeRepositoryAdapter implements ResumeRepository {
     }
 
     @Override
+    public void delete(Resume resume) {
+        jpa.delete(resume);
+    }
+
+    @Override
     public Optional<Resume> findById(Long id) {
         return jpa.findById(id);
     }

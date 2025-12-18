@@ -12,6 +12,8 @@ public interface ResumeRepository {
 
     Resume save(Resume resume);
 
+    void delete(Resume resume);
+
     Optional<Resume> findById(Long id);
 
     Optional<Resume> findBySlug(ResumeSlug slug);

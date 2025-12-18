@@ -12,4 +12,6 @@ public interface MediaFileJpaRepository extends JpaRepository<MediaFile, Long> {
     List<MediaFile> findByOwnerTypeAndOwnerId(MediaOwnerType ownerType, Long ownerId);
 
     Optional<String> findUrlById(Long id);
+
+    void deleteByOwnerTypeAndOwnerId(MediaOwnerType ownerType, Long ownerId);
 }

@@ -34,4 +34,14 @@ public class MediaFileRepositoryAdapter implements MediaFileRepository {
     public List<MediaFile> findByOwner(MediaOwnerType ownerType, Long ownerId) {
         return jpa.findByOwnerTypeAndOwnerId(ownerType, ownerId);
     }
+
+    @Override
+    public void delete(MediaFile mediaFile) {
+        jpa.delete(mediaFile);
+    }
+
+    @Override
+    public void deleteByOwnerTypeAndOwnerId(MediaOwnerType ownerType, Long ownerId) {
+        jpa.deleteByOwnerTypeAndOwnerId(ownerType, ownerId);
+    }
 }
