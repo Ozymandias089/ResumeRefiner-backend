@@ -10,5 +10,5 @@ public interface PageResumeUseCase {
     GetResumeSummaryListResponseDTO getResumeSummaryList(GetResumeSummaryCommand command);
 
     @Builder
-    record GetResumeSummaryCommand(Handle handle, int page, int size, ResumeSort sort){}
+    record GetResumeSummaryCommand(Handle handle, int page, int size, ResumeSort sort, String q){}
 }

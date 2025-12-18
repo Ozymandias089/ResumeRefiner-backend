@@ -127,8 +127,11 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
         int size = Math.min(Math.max(command.size(), 1), 50);
         Pageable pageable = PageRequest.of(page, size, ResumeSort.toSort(sort));
 
+        String q = command.q();
+        q = (q == null) ? null : q.trim();
+
         // Query Summary Projection with id, pageable
-        Page<ResumeSummaryProjection> resumes = resumeRepository.findResumeSummaries(memberId, pageable);
+        Page<ResumeSummaryProjection> resumes = resumeRepository.findResumeSummaries(memberId, q, pageable);
 
         // Map to DTO
         return GetResumeSummaryListResponseDTO.builder()

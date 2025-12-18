@@ -20,5 +20,5 @@ public interface ResumeRepository {
 
     int countByMemberId(Long memberId);
 
-    Page<ResumeSummaryProjection> findResumeSummaries(Long memberId, Pageable pageable);
+    Page<ResumeSummaryProjection> findResumeSummaries(Long memberId, String q, Pageable pageable);
 }

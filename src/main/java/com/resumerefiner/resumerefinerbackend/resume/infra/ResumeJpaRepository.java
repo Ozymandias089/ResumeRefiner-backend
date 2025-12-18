@@ -20,13 +20,19 @@ public interface ResumeJpaRepository extends JpaRepository<Resume, Long> {
     int countResumeByMemberId(Long memberId);
 
     @Query("""
-        select
-            r.slug as slug,
-            r.title as title,
-            r.createdAt as createdAt,
-            r.updatedAt as updatedAt
-        from Resume r
-        where r.memberId = :memberId
-    """)
-    Page<ResumeSummaryRow> findSummaryRowsByMemberId(Long memberId, Pageable pageable);
+    select
+        r.slug.value as slug,
+        r.title as title,
+        r.createdAt as createdAt,
+        r.updatedAt as updatedAt
+    from Resume r
+    where r.memberId = :memberId
+      and (:q is null or :q = '' or lower(r.title) like lower(concat('%', :q, '%')))
+""")
+    Page<ResumeSummaryRow> findSummaryRowsByMemberIdAndQuery(
+            Long memberId,
+            String q,
+            Pageable pageable
+    );
+
 }

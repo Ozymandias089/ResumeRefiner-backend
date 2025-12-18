@@ -44,8 +44,8 @@ public class ResumeRepositoryAdapter implements ResumeRepository {
     }
 
     @Override
-    public Page<ResumeSummaryProjection> findResumeSummaries(Long memberId, Pageable pageable) {
-        return jpa.findSummaryRowsByMemberId(memberId, pageable)
+    public Page<ResumeSummaryProjection> findResumeSummaries(Long memberId, String q, Pageable pageable) {
+        return jpa.findSummaryRowsByMemberIdAndQuery(memberId, q, pageable)
                 .map(row -> ResumeSummaryProjection.builder()
                         .slug(row.getSlug())
                         .title(row.getTitle())

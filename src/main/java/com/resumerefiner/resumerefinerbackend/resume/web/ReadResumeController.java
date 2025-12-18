@@ -41,7 +41,8 @@ public class ReadResumeController {
             @AuthenticatedMember Handle handle,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "UPDATED_AT_DESC") ResumeSort sort
+            @RequestParam(defaultValue = "UPDATED_AT_DESC") ResumeSort sort,
+            @RequestParam(required = false) String q
     ) {
         GetResumeSummaryListResponseDTO dto = pageResumeUseCase.getResumeSummaryList(
                 GetResumeSummaryCommand.builder()
@@ -49,6 +50,7 @@ public class ReadResumeController {
                         .page(page)
                         .size(size)
                         .sort(sort)
+                        .q(q)
                         .build()
         );
 
