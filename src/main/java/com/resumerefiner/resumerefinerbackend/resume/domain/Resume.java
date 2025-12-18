@@ -2,6 +2,7 @@ package com.resumerefiner.resumerefinerbackend.resume.domain;
 
 import com.resumerefiner.resumerefinerbackend.global.jpa.BaseTimeEntity;
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.AggregateRoot;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
 import com.resumerefiner.resumerefinerbackend.resume.domain.vo.*;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -111,10 +112,10 @@ public class Resume extends BaseTimeEntity implements AggregateRoot {
             List<ResumeExperience> experiences,
             List<ResumeCustomSection> customSections
     ) {
-        if (memberId == null) throw new IllegalArgumentException("memberId required");
-        if (title == null || title.isBlank()) throw new IllegalArgumentException("title required");
-        if (languageCode == null) throw new IllegalArgumentException("languageCode required");
-        if (profile == null) throw new IllegalArgumentException("profile required");
+        if (memberId == null) throw new DomainRuleViolationException("memberId required");
+        if (title == null || title.isBlank()) throw new DomainRuleViolationException("title required");
+        if (languageCode == null) throw new DomainRuleViolationException("languageCode required");
+        if (profile == null) throw new DomainRuleViolationException("profile required");
 
         this.memberId = memberId;
         this.slug = ResumeSlug.random();
@@ -154,12 +155,12 @@ public class Resume extends BaseTimeEntity implements AggregateRoot {
      * --------------------------- */
 
     public void changeTitle(String title) {
-        if (title == null || title.isBlank()) throw new IllegalArgumentException("RESUME_TITLE_REQUIRED");
+        if (title == null || title.isBlank()) throw new DomainRuleViolationException("RESUME_TITLE_REQUIRED");
         this.title = title.trim();
     }
 
     public void changeLanguage(LanguageCode languageCode) {
-        if (languageCode == null) throw new IllegalArgumentException("RESUME_LANGUAGE_REQUIRED");
+        if (languageCode == null) throw new DomainRuleViolationException("RESUME_LANGUAGE_REQUIRED");
         this.languageCode = languageCode;
     }
 
@@ -168,7 +169,7 @@ public class Resume extends BaseTimeEntity implements AggregateRoot {
     }
 
     public void changeProfile(ResumeProfile profile) {
-        if (profile == null) throw new IllegalArgumentException("RESUME_PROFILE_REQUIRED");
+        if (profile == null) throw new DomainRuleViolationException("RESUME_PROFILE_REQUIRED");
         this.profile = profile;
     }
 

@@ -1,5 +1,6 @@
 package com.resumerefiner.resumerefinerbackend.member.application.service;
 
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.*;
 import com.resumerefiner.resumerefinerbackend.media.domain.MediaFileRepository;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberSummaryDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetMeUseCase;
@@ -34,7 +35,7 @@ public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, G
     @Override
     public MemberSummaryDTO getMe(GetMeCommand q) {
         Member member = memberRepository.findByHandle(new Handle(q.handle().getValue()))
-                .orElseThrow(() -> new IllegalArgumentException("MEMBER_NOT_FOUND"));
+                .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
 
         return toMemberSummary(member);
     }
@@ -42,14 +43,15 @@ public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, G
     @Override
     public MemberSummaryDTO login(LogInCommand command) {
         Member member = memberRepository.findByEmail(new Email(command.email()))
-                .orElseThrow(() -> new IllegalArgumentException("INVALID_CREDENTIALS"));
+                .orElseThrow(() -> new InvalidCredentialsException("Account not found"));
 
         if (!passwordEncoder.matches(command.password(), member.getPasswordHash())) {
-            throw new IllegalArgumentException("INVALID_CREDENTIALS");
+            log.error("Invalid credentials");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
 
         if (!member.isActive()) {
-            throw new IllegalStateException("MEMBER_INACTIVE");
+            throw new MemberInactiveException("Member not active");
         }
 
         return toMemberSummary(member);
@@ -59,10 +61,12 @@ public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, G
     @Transactional
     public MemberSummaryDTO register(RegisterMemberCommand command) {
         if (memberRepository.existsByEmail(new Email(command.email()))) {
-            throw new IllegalArgumentException("EMAIL_ALREADY_IN_USE");
+            log.error("Email already in use");
+            throw new DuplicateEmailException();
         }
         if (memberRepository.existsByHandle(new Handle(command.handle()))) {
-            throw new IllegalArgumentException("HANDLE_ALREADY_IN_USE");
+            log.error("Email already in use");
+            throw new DuplicateHandleException();
         }
 
         // 2) 비밀번호 해시
@@ -90,7 +94,7 @@ public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, G
         String profileImageUrl = null;
         if (m.getProfileImageId() != null)
             profileImageUrl = mediaFileRepository.findById(m.getProfileImageId())
-                    .orElseThrow(() -> new RuntimeException("Image Not Found"))
+                    .orElseThrow(() -> new ResourceNotFoundException("Image Not Found"))
                     .getUrl();
 
         return new MemberSummaryDTO(

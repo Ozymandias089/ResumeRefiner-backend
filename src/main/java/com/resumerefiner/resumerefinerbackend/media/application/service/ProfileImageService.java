@@ -1,5 +1,6 @@
 package com.resumerefiner.resumerefinerbackend.media.application.service;
 
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.*;
 import com.resumerefiner.resumerefinerbackend.media.application.dto.UploadProfileImageResponseDTO;
 import com.resumerefiner.resumerefinerbackend.media.application.ports.in.ProfileImageUseCase;
 import com.resumerefiner.resumerefinerbackend.media.application.ports.out.MediaStorage;
@@ -40,7 +41,7 @@ public class ProfileImageService implements ProfileImageUseCase {
 
         // 1) handle로 Member 조회 (id 확보)
         Member member = memberRepository.findByHandle(command.handle())
-                .orElseThrow(() -> new IllegalStateException("Member Not Found"));
+                .orElseThrow(() -> new InvalidCredentialsException("Member Not Found"));
 
         MultipartFile file = command.file();
 
@@ -61,7 +62,7 @@ public class ProfileImageService implements ProfileImageUseCase {
         try (InputStream in = file.getInputStream()) {
             url = mediaStorage.uploadPublic(key, contentType, in, file.getSize());
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to upload file", e);
+            throw new InternalServerException("Failed to upload file : " + e.getMessage());
         }
 
         // 5) media_file 레코드 생성
@@ -86,14 +87,14 @@ public class ProfileImageService implements ProfileImageUseCase {
 
     private void validateImage(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("file must not be empty");
+            throw new EmptyFileException();
         }
         if (file.getSize() > MAX_BYTES) {
-            throw new IllegalArgumentException("file size must be <= 5MB");
+            throw new FileTooLargeException(MAX_BYTES);
         }
         String ct = normalizeContentType(file.getContentType());
         if (!ALLOWED_CT.contains(ct)) {
-            throw new IllegalArgumentException("unsupported content type: " + ct);
+            throw new UnsupportedMediaTypeException(ct, ALLOWED_CT);
         }
 
         // (선택) 시그니처 검사까지 하고 싶으면 여기서 magic number 체크 추가
@@ -114,7 +115,7 @@ public class ProfileImageService implements ProfileImageUseCase {
             case "image/jpeg" -> "jpg";
             case "image/png" -> "png";
             case "image/webp" -> "webp";
-            default -> throw new IllegalArgumentException("unsupported content type: " + ct);
+            default -> throw new UnsupportedMediaTypeException(ct, ALLOWED_CT);
         };
     }
 }

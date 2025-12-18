@@ -1,5 +1,6 @@
 package com.resumerefiner.resumerefinerbackend.resume.application.service;
 
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.InvalidCredentialsException;
 import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
 import com.resumerefiner.resumerefinerbackend.resume.application.ports.in.CreateResumeUseCase;
 import com.resumerefiner.resumerefinerbackend.resume.domain.Resume;
@@ -25,7 +26,7 @@ public class CreateResumeService implements CreateResumeUseCase {
     @Transactional
     public String create(CreateResumeCommand command) {
         Long memberId = memberRepository.findMemberIdByHandle(command.handle())
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+                .orElseThrow(() -> new InvalidCredentialsException("Member not found"));
         log.debug("Getting Id for user {}", command.handle().toString());
 
         ResumeProfile profile = resumeAssembler.toProfile(command.profile());

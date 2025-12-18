@@ -1,6 +1,8 @@
 package com.resumerefiner.resumerefinerbackend.resume.domain.vo;
 
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.ValueObject;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainConflictException;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -118,12 +120,12 @@ public class ResumeCustomSection implements ValueObject {
         if (raw == null) return null;
         String v = raw.trim().replaceAll("\\s+", " ");
         if (v.isEmpty()) return null;
-        if (v.length() > maxLen) throw new IllegalArgumentException("VALUE_TOO_LONG");
+        if (v.length() > maxLen) throw new DomainRuleViolationException("VALUE_TOO_LONG");
         return v;
     }
 
     private static int requireNonNegative(int value, String err) {
-        if (value < 0) throw new IllegalArgumentException(err);
+        if (value < 0) throw new DomainConflictException(err);
         return value;
     }
 

@@ -1,6 +1,8 @@
 package com.resumerefiner.resumerefinerbackend.resume.domain.vo;
 
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.ValueObject;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainConflictException;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -127,7 +129,7 @@ public class ResumeExperience implements ValueObject {
 
     private static String normalizeRequired(String raw, int maxLen, String err) {
         String v = normalizeOptional(raw, maxLen);
-        if (v == null || v.isBlank()) throw new IllegalArgumentException(err);
+        if (v == null || v.isBlank()) throw new DomainConflictException(err);
         return v;
     }
 
@@ -135,12 +137,12 @@ public class ResumeExperience implements ValueObject {
         if (raw == null) return null;
         String v = raw.trim().replaceAll("\\s+", " ");
         if (v.isEmpty()) return null;
-        if (v.length() > maxLen) throw new IllegalArgumentException("VALUE_TOO_LONG");
+        if (v.length() > maxLen) throw new DomainRuleViolationException("VALUE_TOO_LONG");
         return v;
     }
 
     private static int requireNonNegative(int value, String err) {
-        if (value < 0) throw new IllegalArgumentException(err);
+        if (value < 0) throw new DomainConflictException(err);
         return value;
     }
 

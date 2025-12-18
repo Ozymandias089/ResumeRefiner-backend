@@ -1,6 +1,8 @@
 package com.resumerefiner.resumerefinerbackend.resume.domain.vo;
 
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.ValueObject;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainConflictException;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
@@ -143,7 +145,7 @@ public class ResumeProfile implements ValueObject {
     private static String normalizeRequiredName(String raw) {
         String v = normalizeOptional(raw, NAME_MAX);
         if (v == null || v.isBlank()) {
-            throw new IllegalArgumentException("PROFILE_NAME_REQUIRED");
+            throw new DomainRuleViolationException("PROFILE_NAME_REQUIRED");
         }
         return v;
     }
@@ -153,7 +155,7 @@ public class ResumeProfile implements ValueObject {
         String v = raw.trim().replaceAll("\\s+", " ");
         if (v.isEmpty()) return null;
         if (v.length() > maxLen) {
-            throw new IllegalArgumentException("VALUE_TOO_LONG");
+            throw new DomainConflictException("VALUE_TOO_LONG");
         }
         return v;
     }

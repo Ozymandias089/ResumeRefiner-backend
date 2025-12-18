@@ -1,6 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.member.domain.vo;
 
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.ValueObject;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -18,10 +19,10 @@ public class Handle implements ValueObject {
 
     public Handle(String value) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("handle must not be blank");
+            throw new DomainRuleViolationException("handle must not be blank");
         }
         if (value.length() < 3 || value.length() > 32) {
-            throw new IllegalArgumentException("handle length must be between 3 and 32");
+            throw new DomainRuleViolationException("handle length must be between 3 and 32");
         }
         // 필요하면 정규식 검증 추가 (알파벳/숫자/언더스코어만 허용 등)
         this.value = value;

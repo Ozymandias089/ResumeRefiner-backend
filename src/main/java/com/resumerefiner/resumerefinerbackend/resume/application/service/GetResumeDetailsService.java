@@ -1,5 +1,8 @@
 package com.resumerefiner.resumerefinerbackend.resume.application.service;
 
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.ForbiddenException;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.InvalidCredentialsException;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.ResourceNotFoundException;
 import com.resumerefiner.resumerefinerbackend.media.domain.MediaFileRepository;
 import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
 import com.resumerefiner.resumerefinerbackend.resume.application.dto.internal.*;
@@ -33,16 +36,16 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
     @Transactional(readOnly = true)
     public GetResumeResponseDTO getResumeDetails(GetResumeDetailsCommand command) {
         Long id = memberRepository.findMemberIdByHandle(command.handle())
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+                .orElseThrow(() -> new InvalidCredentialsException("Member not found"));
         log.debug("Get resume details for member {}", command.handle().toString());
 
         Resume resume = resumeRepository.findBySlug(command.slug())
-                .orElseThrow(() -> new IllegalArgumentException("Resume Not Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Resume Not Found"));
         log.debug("Get resume details for member {}", command.handle().toString());
 
         if (!resume.getMemberId().equals(id)) {
             log.warn("Illegal Access Detected");
-            throw new IllegalArgumentException("FORBIDDEN");
+            throw new ForbiddenException();
         }
 
         String imageUrl = resume.getPhotoImageId() == null
@@ -100,7 +103,7 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
                 .toList();
 
         return GetResumeResponseDTO.builder()
-                .slug(resume.getSlug().getValue()) // ✅ toString보다 value 권장
+                .slug(resume.getSlug().getValue())
                 .title(resume.getTitle())
                 .createdAt(resume.getCreatedAt())
                 .updatedAt(resume.getUpdatedAt())
@@ -119,7 +122,7 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
     public GetResumeSummaryListResponseDTO getResumeSummaryList(GetResumeSummaryCommand command) {
         // Fetch Member ID with Handle
         Long memberId = memberRepository.findMemberIdByHandle(command.handle())
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+                .orElseThrow(() -> new InvalidCredentialsException("Member not found"));
 
         // Create Pageable Object
         ResumeSort sort = command.sort() != null ? command.sort() : ResumeSort.UPDATED_AT_DESC;

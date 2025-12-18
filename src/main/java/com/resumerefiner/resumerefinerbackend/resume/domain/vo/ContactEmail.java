@@ -1,6 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.resume.domain.vo;
 
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.ValueObject;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainConflictException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -47,7 +48,7 @@ public class ContactEmail implements ValueObject {
         if (v.isEmpty()) return null;
 
         if (!EMAIL_PATTERN.matcher(v).matches()) {
-            throw new IllegalArgumentException("invalid contact email format");
+            throw new DomainConflictException("invalid contact email format");
         }
         return v;
     }

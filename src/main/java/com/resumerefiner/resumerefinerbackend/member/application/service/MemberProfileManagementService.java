@@ -1,5 +1,8 @@
 package com.resumerefiner.resumerefinerbackend.member.application.service;
 
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.InvalidCredentialsException;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.ResourceNotFoundException;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.UnauthorizedException;
 import com.resumerefiner.resumerefinerbackend.media.domain.MediaFileRepository;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.ChangePasswordResponseDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberDetailsResponseDTO;
@@ -32,7 +35,7 @@ public class MemberProfileManagementService implements GetProfileUseCase, Manage
         log.info("POST /api/profile Service Entry with Handle: {}", command.handle().toString());
         // 1. 커맨드에서 핸들을 통해 정보를 불러온다.
         Member member = memberRepository.findByHandle(command.handle())
-                .orElseThrow(() -> new RuntimeException("Member Not found"));
+                .orElseThrow(() -> new InvalidCredentialsException("Member Not found"));
         log.info("POST /api/profile Service \n Member {} found with id: {}", member.getHandle().toString(), member.getId());
 
         log.info("Getting member profile with id {}", member.getId());
@@ -44,7 +47,7 @@ public class MemberProfileManagementService implements GetProfileUseCase, Manage
     @Transactional
     public MemberDetailsResponseDTO changeUserInfo(ChangeInfoCommand command) {
         Member member = memberRepository.findByHandle(command.handle())
-                .orElseThrow(() -> new RuntimeException("Member Not found"));
+                .orElseThrow(() -> new InvalidCredentialsException("Member Not found"));
 
         if (command.newName() != null) {
             member.changeName(command.newName());
@@ -54,7 +57,7 @@ public class MemberProfileManagementService implements GetProfileUseCase, Manage
         if (command.email() != null) {
             if (member.getProvider() != Provider.LOCAL) {
                 log.error("Cannot change user's email address to '{}'", command.email());
-                throw new IllegalStateException("social login user cannot change email");
+                throw new UnauthorizedException("Social login Users cannot change Email");
             }
             member.changeEmail(command.email());
             log.info("Changing member email to '{}'", command.email());
@@ -68,17 +71,17 @@ public class MemberProfileManagementService implements GetProfileUseCase, Manage
     @Transactional
     public ChangePasswordResponseDTO changePassword(ChangePasswordCommand command) {
         Member member = memberRepository.findByHandle(command.handle())
-                .orElseThrow(() -> new RuntimeException("Member Not found"));
+                .orElseThrow(() -> new InvalidCredentialsException("Member Not found"));
 
         if (member.getProvider() != Provider.LOCAL) {
             log.debug("Changing member profile password forbidden");
-            throw new IllegalStateException("social login user cannot change password");
+            throw new UnauthorizedException("social login user cannot change password");
         }
 
         // raw vs encoded
         if (!passwordEncoder.matches(command.currentPassword(), member.getPasswordHash())) {
             log.error("Passwords don't match");
-            throw new IllegalArgumentException("current password mismatch");
+            throw new InvalidCredentialsException("current password mismatch");
         }
 
         String newHash = passwordEncoder.encode(command.newPassword());
@@ -97,7 +100,7 @@ public class MemberProfileManagementService implements GetProfileUseCase, Manage
         String profileImageUrl = null;
         if (member.getProfileImageId() != null)
             profileImageUrl = mediaFileRepository.findById(member.getProfileImageId())
-                    .orElseThrow(() -> new RuntimeException("Image Not Found"))
+                    .orElseThrow(() -> new ResourceNotFoundException("Image Not Found"))
                     .getUrl();
 
         log.info("SERVICE: Getting member profile image");

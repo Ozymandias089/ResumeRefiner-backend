@@ -1,6 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.resume.domain.vo;
 
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.ValueObject;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
 import com.resumerefiner.resumerefinerbackend.global.shared.util.ResumeSlugGenerator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -20,8 +21,8 @@ public class ResumeSlug implements ValueObject {
 
     private ResumeSlug(String value) {
         String v = value == null ? "" : value.trim();
-        if (v.isBlank()) throw new IllegalArgumentException("slug must not be blank");
-        if (v.length() > MAX_LENGTH) throw new IllegalArgumentException("slug exceeds length limit");
+        if (v.isBlank()) throw new DomainRuleViolationException("slug must not be blank");
+        if (v.length() > MAX_LENGTH) throw new DomainRuleViolationException("slug exceeds length limit");
         this.value = v;
     }
 

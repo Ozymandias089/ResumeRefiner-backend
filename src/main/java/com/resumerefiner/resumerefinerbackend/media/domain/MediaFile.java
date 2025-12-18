@@ -2,6 +2,7 @@ package com.resumerefiner.resumerefinerbackend.media.domain;
 
 import com.resumerefiner.resumerefinerbackend.global.jpa.BaseTimeEntity;
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.AggregateRoot;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -64,16 +65,16 @@ public class MediaFile extends BaseTimeEntity implements AggregateRoot {
         this.ownerType = Objects.requireNonNull(ownerType, "ownerType must not be null");
 
         if (url == null || url.isBlank()) {
-            throw new IllegalArgumentException("url must not be blank");
+            throw new DomainRuleViolationException("url must not be blank");
         }
         if (fileName == null || fileName.isBlank()) {
-            throw new IllegalArgumentException("fileName must not be blank");
+            throw new DomainRuleViolationException("fileName must not be blank");
         }
         if (contentType == null || contentType.isBlank()) {
-            throw new IllegalArgumentException("contentType must not be blank");
+            throw new DomainRuleViolationException("contentType must not be blank");
         }
         if (sizeBytes < 0) {
-            throw new IllegalArgumentException("sizeBytes must be >= 0");
+            throw new DomainRuleViolationException("sizeBytes must be >= 0");
         }
 
         this.url = url;
@@ -110,7 +111,7 @@ public class MediaFile extends BaseTimeEntity implements AggregateRoot {
 
     public void changeUrl(String newUrl) {
         if (newUrl == null || newUrl.isBlank()) {
-            throw new IllegalArgumentException("url must not be blank");
+            throw new DomainRuleViolationException("url must not be blank");
         }
         this.url = newUrl;
     }
