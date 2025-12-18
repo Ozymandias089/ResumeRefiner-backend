@@ -30,7 +30,7 @@ public class CreateResumeController {
 
         String slug = createResumeUseCase.create(createResumeMapper.toCommand(handle, dto));
 
-        URI location = URI.create("/api/resumes" + slug);
+        URI location = URI.create("/api/resumes/" + slug);
         return ResponseEntity.created(location).build();
     }
 }

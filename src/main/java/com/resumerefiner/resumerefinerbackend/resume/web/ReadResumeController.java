@@ -37,7 +37,7 @@ public class ReadResumeController {
     }
 
     @GetMapping(produces = "application/json")
-    public ResponseEntity<GetResumeSummaryListResponseDTO> getResumeDetails(
+    public ResponseEntity<GetResumeSummaryListResponseDTO> getResumeSummaries(
             @AuthenticatedMember Handle handle,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,

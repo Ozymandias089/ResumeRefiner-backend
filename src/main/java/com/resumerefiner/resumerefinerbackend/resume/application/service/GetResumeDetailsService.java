@@ -61,8 +61,8 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
         if (resume.getMilitaryService() != null) {
             var ms = resume.getMilitaryService();
             military = new MilitaryServiceDTO(
-                    safeToString(ms.getStatus()),
-                    safeToString(ms.getBranch()),
+                    ms.getStatus(),
+                    ms.getBranch(),
                     ms.getPeriod(),
                     ms.getRank(),
                     ms.getNotes()
@@ -73,7 +73,7 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
                 .map(e -> new EducationDTO(
                         e.getSchoolName(),
                         e.getMajor(),
-                        safeToString(e.getDegree()),  // degree optional
+                        e.getDegree(),  // degree optional
                         e.getPeriod(),
                         e.getDescription(),
                         e.getDisplayOrder()
@@ -92,7 +92,7 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
 
         List<CustomSectionDTO> customSections = resume.getCustomSections().stream()
                 .map(c -> new CustomSectionDTO(
-                        safeToString(c.getType()),   // type optional
+                        c.getType(),   // type optional
                         c.getSubject(),
                         c.getContent(),
                         c.getDisplayOrder()

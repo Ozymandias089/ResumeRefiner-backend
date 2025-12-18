@@ -1,20 +1,14 @@
 package com.resumerefiner.resumerefinerbackend.resume.application.dto.internal;
 
+import com.resumerefiner.resumerefinerbackend.resume.domain.vo.MilitaryBranch;
+import com.resumerefiner.resumerefinerbackend.resume.domain.vo.MilitaryStatus;
 import jakarta.validation.constraints.*;
 
 public record MilitaryServiceDTO(
         @NotBlank
-        @Pattern(
-                regexp = "^(NOT_APPLICABLE|NOT_SERVED|SERVING|SERVED|EXEMPT)$",
-                message = "invalid militaryStatus"
-        )
-        String militaryStatus,
+        MilitaryStatus militaryStatus,
 
-        @Pattern(
-                regexp = "^(ARMY|NAVY|AIR_FORCE|MARINE|SOCIAL_SERVICE|OTHER)$",
-                message = "invalid branch"
-        )
-        String branch,
+        MilitaryBranch branch,
 
         @Size(max = 50) String period,
         @Size(max = 50) String rank,

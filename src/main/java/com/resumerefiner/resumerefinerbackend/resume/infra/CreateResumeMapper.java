@@ -3,11 +3,6 @@ package com.resumerefiner.resumerefinerbackend.resume.infra;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
 import com.resumerefiner.resumerefinerbackend.resume.application.dto.request.CreateResumeRequestDTO;
 import com.resumerefiner.resumerefinerbackend.resume.application.ports.in.CreateResumeUseCase;
-import com.resumerefiner.resumerefinerbackend.resume.domain.LanguageCode;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.EducationDegree;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.MilitaryBranch;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.MilitaryStatus;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeSectionType;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,7 +14,7 @@ public class CreateResumeMapper {
         return CreateResumeUseCase.CreateResumeCommand.builder()
                 .handle(handle)
                 .title(dto.title())
-                .languageCode(LanguageCode.valueOf(dto.languageCode()))
+                .languageCode(dto.languageCode())
                 .profile(mapProfile(dto))
                 .military(mapMilitary(dto))
                 .educations(mapEducations(dto))
@@ -42,8 +37,8 @@ public class CreateResumeMapper {
         if (dto.military() == null) return null;
         var m = dto.military();
         return CreateResumeUseCase.MilitaryServiceCommand.builder()
-                .status(MilitaryStatus.valueOf(m.militaryStatus()))
-                .branch(m.branch() == null ? null : MilitaryBranch.valueOf(m.branch()))
+                .status(m.militaryStatus())
+                .branch(m.branch() == null ? null : m.branch())
                 .period(m.period())
                 .rank(m.rank())
                 .notes(m.notes())
@@ -55,7 +50,7 @@ public class CreateResumeMapper {
                 .map(e -> CreateResumeUseCase.EducationCommand.builder()
                         .schoolName(e.schoolName())
                         .major(e.major())
-                        .degree(EducationDegree.valueOf(e.degree()))
+                        .degree(e.degree())
                         .period(e.period())
                         .description(e.description())
                         .description(e.description())
@@ -81,7 +76,7 @@ public class CreateResumeMapper {
         if (dto.custom() == null) return List.of();
         return dto.custom().stream()
                 .map(c -> CreateResumeUseCase.CustomSectionCommand.builder()
-                        .type(ResumeSectionType.valueOf(c.type()))
+                        .type(c.type())
                         .subject(c.subject())
                         .content(c.content())
                         .displayOrder(c.displayOrder())
