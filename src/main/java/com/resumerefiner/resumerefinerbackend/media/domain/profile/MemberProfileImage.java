@@ -22,12 +22,12 @@ public class MemberProfileImage extends AbstractImageFile {
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
-    private MemberProfileImage(Long memberId, String url, String fileName, String contentType, long sizeBytes) {
-        super(url, fileName, contentType, sizeBytes);
+    private MemberProfileImage(Long memberId, String storageKey, String url, String fileName, String contentType, long sizeBytes) {
+        super(url, storageKey, fileName, contentType, sizeBytes);
         this.memberId = memberId;
     }
 
-    public static MemberProfileImage create(Long memberId, String url, String fileName, String contentType, long sizeBytes) {
-        return new MemberProfileImage(memberId, url, fileName, contentType, sizeBytes);
+    public static MemberProfileImage create(Long memberId, String storageKey, String url, String fileName, String contentType, long sizeBytes) {
+        return new MemberProfileImage(memberId, storageKey, url, fileName, contentType, sizeBytes);
     }
 }

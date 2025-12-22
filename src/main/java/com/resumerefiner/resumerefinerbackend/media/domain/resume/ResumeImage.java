@@ -22,12 +22,12 @@ public class ResumeImage extends AbstractImageFile {
     @Column(name = "resume_id", nullable = false)
     private Long resumeId;
 
-    private ResumeImage(Long resumeId, String url, String fileName, String contentType, long sizeBytes) {
-        super(url, fileName, contentType, sizeBytes);
+    private ResumeImage(Long resumeId, String storageKey, String url, String fileName, String contentType, long sizeBytes) {
+        super(url, storageKey, fileName, contentType, sizeBytes);
         this.resumeId = resumeId;
     }
 
-    public static ResumeImage create(Long resumeId, String url, String fileName, String contentType, long sizeBytes) {
-        return new ResumeImage(resumeId, url, fileName, contentType, sizeBytes);
+    public static ResumeImage create(Long resumeId, String storageKey, String url, String fileName, String contentType, long sizeBytes) {
+        return new ResumeImage(resumeId, storageKey, url, fileName, contentType, sizeBytes);
     }
 }

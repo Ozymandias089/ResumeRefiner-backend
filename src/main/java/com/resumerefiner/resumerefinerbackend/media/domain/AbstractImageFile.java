@@ -13,6 +13,10 @@ import lombok.NoArgsConstructor;
 public abstract class AbstractImageFile extends BaseTimeEntity {
 
     @Getter
+    @Column(name = "storage_key", nullable = false, length = 512)
+    protected String storageKey;
+
+    @Getter
     @Column(name = "url", nullable = false, length = 512)
     protected String url;
 
@@ -28,12 +32,14 @@ public abstract class AbstractImageFile extends BaseTimeEntity {
     @Column(name = "size_bytes", nullable = false)
     protected long sizeBytes;
 
-    protected AbstractImageFile(String url, String fileName, String contentType, long sizeBytes) {
+    protected AbstractImageFile(String storageKey, String url, String fileName, String contentType, long sizeBytes) {
+        if (storageKey == null || storageKey.isBlank()) throw new DomainRuleViolationException("storageKey must not be blank");
         if (url == null || url.isBlank()) throw new DomainRuleViolationException("url must not be blank");
         if (fileName == null || fileName.isBlank()) throw new DomainRuleViolationException("fileName must not be blank");
         if (contentType == null || contentType.isBlank()) throw new DomainRuleViolationException("contentType must not be blank");
         if (sizeBytes < 0) throw new DomainRuleViolationException("sizeBytes must be >= 0");
 
+        this.storageKey = storageKey;
         this.url = url;
         this.fileName = fileName;
         this.contentType = contentType;

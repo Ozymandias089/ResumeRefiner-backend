@@ -41,4 +41,27 @@ public class LocalMediaStorageAdapter implements MediaStorage {
         String base = publicBaseUrl.replaceAll("/$", "");
         return base + "/static/" + key;
     }
+
+    @Override
+    public void delete(String key) {
+        if (key == null || key.isBlank()) return;
+
+        Path target = Paths.get(rootDir).resolve(key).normalize();
+
+        // rootDir 밖으로 탈출하는 key 방지(보안)
+        Path root = Paths.get(rootDir).toAbsolutePath().normalize();
+        Path absTarget = target.toAbsolutePath().normalize();
+        if (!absTarget.startsWith(root)) {
+            throw new IllegalArgumentException("invalid storage key: " + key);
+        }
+
+        try {
+            Files.deleteIfExists(absTarget);
+
+            // (선택) 빈 디렉토리 정리하고 싶으면 부모를 역순으로 지우는 로직 추가 가능
+            // 지금은 굳이 안 지워도 OK.
+        } catch (IOException e) {
+            throw new IllegalStateException("failed to delete file locally", e);
+        }
+    }
 }
