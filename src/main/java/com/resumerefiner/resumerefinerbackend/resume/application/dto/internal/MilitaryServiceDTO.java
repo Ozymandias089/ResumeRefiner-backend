@@ -5,7 +5,7 @@ import com.resumerefiner.resumerefinerbackend.resume.domain.vo.MilitaryStatus;
 import jakarta.validation.constraints.*;
 
 public record MilitaryServiceDTO(
-        @NotBlank
+        @NotNull
         MilitaryStatus militaryStatus,
 
         MilitaryBranch branch,
