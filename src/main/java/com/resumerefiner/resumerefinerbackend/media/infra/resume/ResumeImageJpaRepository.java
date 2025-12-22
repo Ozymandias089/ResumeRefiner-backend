@@ -1,4 +1,4 @@
-package com.resumerefiner.resumerefinerbackend.media.infra;
+package com.resumerefiner.resumerefinerbackend.media.infra.resume;
 
 import com.resumerefiner.resumerefinerbackend.media.domain.resume.ResumeImage;
 import org.springframework.data.jpa.repository.JpaRepository;

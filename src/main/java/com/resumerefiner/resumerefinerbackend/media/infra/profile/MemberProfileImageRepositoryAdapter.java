@@ -1,4 +1,4 @@
-package com.resumerefiner.resumerefinerbackend.media.infra;
+package com.resumerefiner.resumerefinerbackend.media.infra.profile;
 
 import com.resumerefiner.resumerefinerbackend.media.domain.profile.MemberProfileImage;
 import com.resumerefiner.resumerefinerbackend.media.domain.profile.MemberProfileImageRepository;
