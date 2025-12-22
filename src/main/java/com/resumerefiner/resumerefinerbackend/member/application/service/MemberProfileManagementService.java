@@ -3,7 +3,7 @@ package com.resumerefiner.resumerefinerbackend.member.application.service;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.InvalidCredentialsException;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.ResourceNotFoundException;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.UnauthorizedException;
-import com.resumerefiner.resumerefinerbackend.media.domain.MediaFileRepository;
+import com.resumerefiner.resumerefinerbackend.media.domain.profile.MemberProfileImageRepository;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.ChangePasswordResponseDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberDetailsResponseDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetProfileUseCase;
@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberProfileManagementService implements GetProfileUseCase, ManageProfileUseCase {
     private final MemberRepository memberRepository;
-    private final MediaFileRepository mediaFileRepository;
+    private final MemberProfileImageRepository memberProfileImageRepository;
     private final ResumeRepository resumeRepository;
     private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
@@ -99,9 +99,8 @@ public class MemberProfileManagementService implements GetProfileUseCase, Manage
     private MemberDetailsResponseDTO toDTO(Member member) {
         String profileImageUrl = null;
         if (member.getProfileImageId() != null)
-            profileImageUrl = mediaFileRepository.findById(member.getProfileImageId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Image Not Found"))
-                    .getUrl();
+            profileImageUrl = memberProfileImageRepository.findUrlById(member.getProfileImageId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Image Not Found"));
 
         log.info("SERVICE: Getting member profile image");
 

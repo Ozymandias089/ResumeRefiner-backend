@@ -1,7 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.member.application.service;
 
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.*;
-import com.resumerefiner.resumerefinerbackend.media.domain.MediaFileRepository;
+import com.resumerefiner.resumerefinerbackend.media.domain.profile.MemberProfileImageRepository;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberSummaryDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetMeUseCase;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.LoginUseCase;
@@ -29,7 +29,7 @@ public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, G
     private final MemberRepository memberRepository;
     private final ResumeRepository resumeRepository;
     private final ReviewRepository reviewRepository;
-    private final MediaFileRepository mediaFileRepository;
+    private final MemberProfileImageRepository memberProfileImageRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -93,9 +93,8 @@ public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, G
         // 2. 프로필 이미지 매핑
         String profileImageUrl = null;
         if (m.getProfileImageId() != null)
-            profileImageUrl = mediaFileRepository.findById(m.getProfileImageId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Image Not Found"))
-                    .getUrl();
+            profileImageUrl = memberProfileImageRepository.findUrlById(m.getProfileImageId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Image Not Found"));
 
         return new MemberSummaryDTO(
                 m.getId(),

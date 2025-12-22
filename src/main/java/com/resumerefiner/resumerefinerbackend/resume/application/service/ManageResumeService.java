@@ -3,8 +3,7 @@ package com.resumerefiner.resumerefinerbackend.resume.application.service;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.ForbiddenException;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.InvalidCredentialsException;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.ResourceNotFoundException;
-import com.resumerefiner.resumerefinerbackend.media.domain.MediaFileRepository;
-import com.resumerefiner.resumerefinerbackend.media.domain.MediaOwnerType;
+import com.resumerefiner.resumerefinerbackend.media.domain.resume.ResumeImageRepository;
 import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
 import com.resumerefiner.resumerefinerbackend.resume.application.ports.in.DeleteResumeUseCase;
 import com.resumerefiner.resumerefinerbackend.resume.domain.Resume;
@@ -20,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ManageResumeService implements DeleteResumeUseCase {
     private final ResumeRepository resumeRepository;
     private final MemberRepository memberRepository;
-    private final MediaFileRepository mediaFileRepository;
+    private final ResumeImageRepository resumeImageRepository;
 
     @Override
     @Transactional
@@ -41,20 +40,8 @@ public class ManageResumeService implements DeleteResumeUseCase {
             throw new ForbiddenException();
         }
 
-        // 이력서의 이미지 파일 존재 시 삭제
-        Long photoId = resume.getPhotoImageId();
-        if (photoId != null) {
-            mediaFileRepository.findById(photoId).ifPresent(f -> {
-                if (f.getOwnerType() == MediaOwnerType.RESUME && f.getOwnerId().equals(resume.getId())) {
-                    mediaFileRepository.deleteByOwnerTypeAndOwnerId(MediaOwnerType.RESUME, resume.getId());
-                } else {
-                    log.warn("PhotoImageId points to unexpected owner. mediaId={}, ownerType={}, ownerId={}, resumeId={}",
-                            photoId, f.getOwnerType(), f.getOwnerId(), resume.getId());
-                }
-            });
-        }
-
         // 삭제
+        resumeImageRepository.deleteByResumeId(resume.getId());
         resumeRepository.delete(resume);
         log.info("Deleted Resume id {} with slug {}", resume.getId(), command.slug().toString());
     }

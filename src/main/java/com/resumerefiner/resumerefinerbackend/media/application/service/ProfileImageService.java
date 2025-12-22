@@ -4,8 +4,8 @@ import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.*;
 import com.resumerefiner.resumerefinerbackend.media.application.dto.UploadProfileImageResponseDTO;
 import com.resumerefiner.resumerefinerbackend.media.application.ports.in.ProfileImageUseCase;
 import com.resumerefiner.resumerefinerbackend.media.application.ports.out.MediaStorage;
-import com.resumerefiner.resumerefinerbackend.media.domain.MediaFile;
-import com.resumerefiner.resumerefinerbackend.media.domain.MediaFileRepository;
+import com.resumerefiner.resumerefinerbackend.media.domain.profile.MemberProfileImage;
+import com.resumerefiner.resumerefinerbackend.media.domain.profile.MemberProfileImageRepository;
 import com.resumerefiner.resumerefinerbackend.member.domain.Member;
 import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class ProfileImageService implements ProfileImageUseCase {
     );
 
     private final MemberRepository memberRepository;       // 포트든 JPA든 너 구조대로
-    private final MediaFileRepository mediaFileRepository; // media_file 저장
+    private final MemberProfileImageRepository memberProfileImageRepository; // media_file 저장
     private final MediaStorage mediaStorage;               // S3 어댑터
     // (선택) 기존 이미지 삭제까지 하고 싶으면 MediaFile 조회/삭제 + S3 delete도 추가
 
@@ -39,25 +39,17 @@ public class ProfileImageService implements ProfileImageUseCase {
     @Transactional
     public UploadProfileImageResponseDTO uploadProfileImage(UploadProfileImageCommand command) {
 
-        // 1) handle로 Member 조회 (id 확보)
         Member member = memberRepository.findByHandle(command.handle())
                 .orElseThrow(() -> new InvalidCredentialsException("Member Not Found"));
 
         MultipartFile file = command.file();
-
-        // 2) 파일 검증
         validateImage(file);
 
-        // 3) S3 key 생성
         String contentType = normalizeContentType(file.getContentType());
         String ext = contentTypeToExt(contentType);
-        String key = "profile/%d/%s.%s".formatted(
-                member.getId(),
-                UUID.randomUUID(),
-                ext
-        );
 
-        // 4) S3 업로드
+        String key = "profile/%d/%s.%s".formatted(member.getId(), UUID.randomUUID(), ext);
+
         final String url;
         try (InputStream in = file.getInputStream()) {
             url = mediaStorage.uploadPublic(key, contentType, in, file.getSize());
@@ -65,24 +57,30 @@ public class ProfileImageService implements ProfileImageUseCase {
             throw new InternalServerException("Failed to upload file : " + e.getMessage());
         }
 
-        // 5) media_file 레코드 생성
+        // 기존 이미지 레코드 제거(대표 1장 정책)
+        memberProfileImageRepository.findByMemberId(member.getId()).ifPresent(existing -> {
+            memberProfileImageRepository.delete(existing);
+            // member.profileImageId는 아래에서 새걸로 덮어쓸 거라 null 세팅은 필수는 아님.
+            // 다만 "중간 상태"를 명시하고 싶으면 유지해도 OK.
+            member.changeProfileImage(null);
+        });
+
         String originalName = (file.getOriginalFilename() == null) ? "profile." + ext : file.getOriginalFilename();
-        MediaFile mediaFile = MediaFile.forMember(
+        MemberProfileImage toSave = MemberProfileImage.create(
                 member.getId(),
                 url,
                 originalName,
                 contentType,
                 file.getSize()
         );
-        mediaFileRepository.save(mediaFile);
 
-        // 6) member.profileImageId 업데이트
-        member.changeProfileImage(mediaFile.getId());
-        // JPA면 save 생략 가능하지만, 포트 구조면 안전하게 호출
+        // 반드시 save 결과를 받아서 id 확보
+        MemberProfileImage saved = memberProfileImageRepository.save(toSave);
+
+        member.changeProfileImage(saved.getId());
         memberRepository.save(member);
 
-        // 7) 응답
-        return new UploadProfileImageResponseDTO(url, mediaFile.getId());
+        return new UploadProfileImageResponseDTO(saved.getUrl(), saved.getId());
     }
 
     private void validateImage(MultipartFile file) {

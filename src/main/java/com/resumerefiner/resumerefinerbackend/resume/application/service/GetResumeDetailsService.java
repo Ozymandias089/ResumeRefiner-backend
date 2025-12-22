@@ -3,7 +3,7 @@ package com.resumerefiner.resumerefinerbackend.resume.application.service;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.ForbiddenException;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.InvalidCredentialsException;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.ResourceNotFoundException;
-import com.resumerefiner.resumerefinerbackend.media.domain.MediaFileRepository;
+import com.resumerefiner.resumerefinerbackend.media.domain.resume.ResumeImageRepository;
 import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
 import com.resumerefiner.resumerefinerbackend.resume.application.dto.internal.*;
 import com.resumerefiner.resumerefinerbackend.resume.application.dto.response.GetResumeResponseDTO;
@@ -30,7 +30,7 @@ import java.util.List;
 public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageResumeUseCase {
     private final MemberRepository memberRepository;
     private final ResumeRepository resumeRepository;
-    private final MediaFileRepository mediaFileRepository;
+    private final ResumeImageRepository resumeImageRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -50,7 +50,7 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
 
         String imageUrl = resume.getPhotoImageId() == null
                 ? null
-                : mediaFileRepository.findUrlById(resume.getPhotoImageId()).orElse(null);
+                : resumeImageRepository.findUrlById(resume.getPhotoImageId()).orElse(null);
 
         var rp = resume.getProfile();
         ProfileDTO profile = new ProfileDTO(
