@@ -21,7 +21,7 @@ public interface ResumeJpaRepository extends JpaRepository<Resume, Long> {
 
     @Query("""
     select
-        r.slug.value as slug,
+        r.slug as slug,
         r.title as title,
         r.createdAt as createdAt,
         r.updatedAt as updatedAt

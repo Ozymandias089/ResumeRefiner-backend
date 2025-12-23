@@ -23,7 +23,7 @@ public class MemberProfileImage extends AbstractImageFile {
     private Long memberId;
 
     private MemberProfileImage(Long memberId, String storageKey, String url, String fileName, String contentType, long sizeBytes) {
-        super(url, storageKey, fileName, contentType, sizeBytes);
+        super(storageKey, url, fileName, contentType, sizeBytes);
         this.memberId = memberId;
     }
 

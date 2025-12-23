@@ -60,7 +60,7 @@ public class ResumeEducation implements ValueObject {
         this.major = normalizeOptional(major, MAJOR_MAX);
         this.degree = degree;
         this.period = normalizeOptional(period, PERIOD_MAX);
-        this.description = normalizeOptional(description, DESC_MAX);
+        this.description = normalizeMultiLineOptional(description, DESC_MAX);
         this.displayOrder = requireNonNegative(displayOrder, "EDU_ORDER_INVALID");
     }
 
@@ -137,6 +137,21 @@ public class ResumeEducation implements ValueObject {
         String v = raw.trim().replaceAll("\\s+", " ");
         if (v.isEmpty()) return null;
         if (v.length() > maxLen) throw new DomainConflictException("VALUE_TOO_LONG");
+        return v;
+    }
+
+    private static String normalizeMultiLineOptional(String raw, int maxLen) {
+        if (raw == null) return null;
+
+        // 줄바꿈은 유지, 양 끝만 정리
+        String v = raw
+                .replaceAll("\r\n", "\n")  // 개행 통일
+                .trim();
+
+        if (v.isEmpty()) return null;
+        if (v.length() > maxLen) {
+            throw new DomainConflictException("VALUE_TOO_LONG");
+        }
         return v;
     }
 

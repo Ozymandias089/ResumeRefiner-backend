@@ -47,7 +47,7 @@ public class ResumeCustomSection implements ValueObject {
     ) {
         this.type = type;
         this.subject = normalizeRequired(subject, SUBJECT_MAX, "SECTION_SUBJECT_REQUIRED");
-        this.content = normalizeRequired(content, CONTENT_MAX, "SECTION_CONTENT_REQUIRED");
+        this.content = normalizeMultiLineRequired(content, CONTENT_MAX);
         this.displayOrder = requireNonNegative(displayOrder, "SECTION_ORDER_INVALID");
     }
 
@@ -121,6 +121,27 @@ public class ResumeCustomSection implements ValueObject {
         String v = raw.trim().replaceAll("\\s+", " ");
         if (v.isEmpty()) return null;
         if (v.length() > maxLen) throw new DomainRuleViolationException("VALUE_TOO_LONG");
+        return v;
+    }
+
+    private static String normalizeMultiLineRequired(String raw, int maxLen) {
+        if (raw == null) {
+            throw new DomainConflictException("VALUE_REQUIRED");
+        }
+
+        // 개행은 유지하되, 개행 포맷 통일 + 앞뒤 공백 제거
+        String v = raw
+                .replaceAll("\r\n", "\n")
+                .trim();
+
+        if (v.isEmpty()) {
+            throw new DomainConflictException("VALUE_REQUIRED");
+        }
+
+        if (v.length() > maxLen) {
+            throw new DomainConflictException("VALUE_TOO_LONG");
+        }
+
         return v;
     }
 

@@ -23,7 +23,7 @@ public class ResumeImage extends AbstractImageFile {
     private Long resumeId;
 
     private ResumeImage(Long resumeId, String storageKey, String url, String fileName, String contentType, long sizeBytes) {
-        super(url, storageKey, fileName, contentType, sizeBytes);
+        super(storageKey, url, fileName, contentType, sizeBytes);
         this.resumeId = resumeId;
     }
 

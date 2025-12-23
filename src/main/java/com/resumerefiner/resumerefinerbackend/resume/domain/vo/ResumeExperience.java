@@ -52,7 +52,7 @@ public class ResumeExperience implements ValueObject {
         this.company = normalizeRequired(company, COMPANY_MAX, "EXP_COMPANY_REQUIRED");
         this.role = normalizeRequired(role, ROLE_MAX, "EXP_ROLE_REQUIRED");
         this.period = normalizeRequired(period, PERIOD_MAX, "EXP_PERIOD_REQUIRED");
-        this.description = normalizeOptional(description, DESC_MAX);
+        this.description = normalizeMultiLineOptional(description, DESC_MAX);
         this.displayOrder = requireNonNegative(displayOrder, "EXP_ORDER_INVALID");
     }
 
@@ -140,6 +140,22 @@ public class ResumeExperience implements ValueObject {
         if (v.length() > maxLen) throw new DomainRuleViolationException("VALUE_TOO_LONG");
         return v;
     }
+
+    private static String normalizeMultiLineOptional(String raw, int maxLen) {
+        if (raw == null) return null;
+
+        // 줄바꿈은 유지, 양 끝만 정리
+        String v = raw
+                .replaceAll("\r\n", "\n")  // 개행 통일
+                .trim();
+
+        if (v.isEmpty()) return null;
+        if (v.length() > maxLen) {
+            throw new DomainConflictException("VALUE_TOO_LONG");
+        }
+        return v;
+    }
+
 
     private static int requireNonNegative(int value, String err) {
         if (value < 0) throw new DomainConflictException(err);
