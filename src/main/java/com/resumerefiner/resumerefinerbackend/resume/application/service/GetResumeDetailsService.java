@@ -22,6 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.List;
 
 @Slf4j
@@ -53,12 +56,22 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
                 : resumeImageRepository.findUrlById(resume.getPhotoImageId()).orElse(null);
 
         var rp = resume.getProfile();
-        ProfileDTO profile = new ProfileDTO(
-                rp.getName(),
-                safeToString(rp.getEmail()),   // email optional
-                rp.getPhone(),
-                rp.getLocation()
-        );
+
+        Integer age = null;
+        if (rp.getBirthDate() != null) {
+            LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+            age = Period.between(rp.getBirthDate(), today).getYears();
+        }
+
+        ProfileViewDTO profile = ProfileViewDTO.builder()
+                .name(rp.getName())
+                .gender(rp.getGender())
+                .email(safeToString(rp.getEmail()))
+                .phone(rp.getPhone())
+                .location(rp.getLocation())
+                .birthDate(rp.getBirthDate())
+                .age(age)
+                .build();
 
         MilitaryServiceDTO military = null;
         if (resume.getMilitaryService() != null) {

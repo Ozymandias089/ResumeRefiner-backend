@@ -11,7 +11,7 @@ public class ResumeAssembler {
 
     public ResumeProfile toProfile(CreateResumeUseCase.ResumeProfileCommand p) {
         if (p == null) return ResumeProfile.anonymous();
-        return ResumeProfile.fromNullable(p.name(), p.email(), p.phone(), p.location());
+        return ResumeProfile.fromNullable(p.name(), p.gender(), p.email(), p.phone(), p.location(), p.birthDate());
     }
 
     public MilitaryService toMilitary(CreateResumeUseCase.MilitaryServiceCommand m) {

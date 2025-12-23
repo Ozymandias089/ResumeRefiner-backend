@@ -27,9 +27,11 @@ public class CreateResumeMapper {
         var p = dto.profile();
         return CreateResumeUseCase.ResumeProfileCommand.builder()
                 .name(p.name())
+                .gender(p.gender())
                 .email(p.email())
                 .phone(p.phone())
                 .location(p.location())
+                .birthDate(p.birthDate())
                 .build();
     }
 

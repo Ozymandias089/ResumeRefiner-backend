@@ -15,7 +15,7 @@ public record GetResumeResponseDTO(
         Instant updatedAt,
         LanguageCode languageCode,
         String photoUrl,
-        ProfileDTO profile,
+        ProfileViewDTO profile,
         MilitaryServiceDTO military,
         List<EducationDTO> educations,
         List<ExperienceDTO> experiences,

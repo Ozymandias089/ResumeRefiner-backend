@@ -2,12 +2,10 @@ package com.resumerefiner.resumerefinerbackend.resume.application.ports.in;
 
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
 import com.resumerefiner.resumerefinerbackend.resume.domain.LanguageCode;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.EducationDegree;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.MilitaryBranch;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.MilitaryStatus;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeSectionType;
+import com.resumerefiner.resumerefinerbackend.resume.domain.vo.*;
 import lombok.Builder;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface CreateResumeUseCase {
@@ -29,9 +27,11 @@ public interface CreateResumeUseCase {
     @Builder
     record ResumeProfileCommand(
             String name,
+            Gender gender,
             String email,
             String phone,
-            String location
+            String location,
+            LocalDate birthDate
     ) {}
 
     @Builder
