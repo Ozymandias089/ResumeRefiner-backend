@@ -3,6 +3,9 @@
 Java Spring Boot backend for ResumeRefiner SaaS.  
 Implements member management, resume storage, AI review processing, billing (payments & credits), and infrastructure setup.
 
+## Check out the Frontend counterpart of this project
+[ResumeRefiner-web](https://github.com/Ozymandias089/ResumeRefiner-web)
+
 ## 🚀 Tech Stack
 
 - **Java 21**
