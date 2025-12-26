@@ -97,6 +97,11 @@ public class Resume extends BaseTimeEntity implements AggregateRoot {
     @OrderBy("displayOrder ASC")
     private List<ResumeCustomSection> customSections = new ArrayList<>();
 
+    @Version
+    @Getter
+    @Column(name = "version", nullable = false)
+    private Long version;
+
     /* ---------------------------
      * Factory (예시)
      * --------------------------- */

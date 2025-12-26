@@ -19,5 +19,6 @@ public record GetResumeResponseDTO(
         MilitaryServiceDTO military,
         List<EducationDTO> educations,
         List<ExperienceDTO> experiences,
-        List<CustomSectionDTO> customSections
+        List<CustomSectionDTO> customSections,
+        long version
 ) {}

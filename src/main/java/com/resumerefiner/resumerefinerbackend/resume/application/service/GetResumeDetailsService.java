@@ -127,6 +127,7 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
                 .educations(educations)
                 .experiences(experiences)
                 .customSections(customSections)
+                .version(resume.getVersion())
                 .build();
     }
 

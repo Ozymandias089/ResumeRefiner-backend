@@ -1,6 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.resume.web;
 
 import com.resumerefiner.resumerefinerbackend.global.security.AuthenticatedMember;
+import com.resumerefiner.resumerefinerbackend.global.web.http.Etags;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
 import com.resumerefiner.resumerefinerbackend.resume.application.dto.response.GetResumeResponseDTO;
 import com.resumerefiner.resumerefinerbackend.resume.application.dto.response.GetResumeSummaryListResponseDTO;
@@ -33,7 +34,10 @@ public class ReadResumeController {
                         .build()
         );
 
-        return ResponseEntity.ok(dto);
+        return ResponseEntity
+                .ok()
+                .eTag(Etags.fromVersion(dto.version()))
+                .body(dto);
     }
 
     @GetMapping(produces = "application/json")
