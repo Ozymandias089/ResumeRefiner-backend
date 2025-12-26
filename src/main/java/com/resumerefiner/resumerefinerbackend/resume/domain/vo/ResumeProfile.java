@@ -80,6 +80,7 @@ public class ResumeProfile implements ValueObject {
     public static ResumeProfile anonymous() {
         return ResumeProfile.builder()
                 .name("익명")
+                .gender(Gender.MALE)
                 .build();
     }
 
