@@ -2,6 +2,8 @@ package com.resumerefiner.resumerefinerbackend.review.domain;
 
 import com.resumerefiner.resumerefinerbackend.global.jpa.BaseTimeEntity;
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.DomainEntity;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainConflictException;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -92,13 +94,13 @@ public class ReviewSentenceFeedback extends BaseTimeEntity implements DomainEnti
                                    Short logicScore,
                                    String rewrittenText) {
 
-        if (review == null) throw new IllegalArgumentException("review must not be null");
+        if (review == null) throw new DomainRuleViolationException("review must not be null");
         if (sentenceIndex == null || sentenceIndex < 0) {
-            throw new IllegalArgumentException("sentenceIndex must be >= 0");
+            throw new DomainConflictException("sentenceIndex must be >= 0");
         }
-        if (originalText == null) throw new IllegalArgumentException("originalText must not be null");
-        if (suggestion == null) throw new IllegalArgumentException("suggestion must not be null");
-        if (rewrittenText == null) throw new IllegalArgumentException("rewrittenText must not be null");
+        if (originalText == null) throw new DomainRuleViolationException("originalText must not be null");
+        if (suggestion == null) throw new DomainRuleViolationException("suggestion must not be null");
+        if (rewrittenText == null) throw new DomainRuleViolationException("rewrittenText must not be null");
 
         this.review = review;
         this.sentenceIndex = sentenceIndex;
@@ -148,8 +150,8 @@ public class ReviewSentenceFeedback extends BaseTimeEntity implements DomainEnti
     }
 
     public void updateSuggestion(String suggestion, String rewrittenText) {
-        if (suggestion == null) throw new IllegalArgumentException("suggestion must not be null");
-        if (rewrittenText == null) throw new IllegalArgumentException("rewrittenText must not be null");
+        if (suggestion == null) throw new DomainRuleViolationException("suggestion must not be null");
+        if (rewrittenText == null) throw new DomainRuleViolationException("rewrittenText must not be null");
         this.suggestion = suggestion;
         this.rewrittenText = rewrittenText;
     }

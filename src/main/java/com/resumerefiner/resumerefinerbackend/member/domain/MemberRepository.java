@@ -20,4 +20,6 @@ public interface MemberRepository {
     boolean existsByHandle(Handle handle);
 
     Optional<Member> findByProviderAndProviderUserId(Provider provider, String providerUserId);
+
+    Optional<Long> findMemberIdByHandle(Handle handle);
 }

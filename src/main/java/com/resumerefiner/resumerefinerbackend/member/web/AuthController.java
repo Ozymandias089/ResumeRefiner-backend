@@ -2,6 +2,7 @@ package com.resumerefiner.resumerefinerbackend.member.web;
 
 import com.resumerefiner.resumerefinerbackend.global.security.AuthenticatedMember;
 import com.resumerefiner.resumerefinerbackend.global.security.AuthenticatedMemberPrincipal;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.InternalServerException;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.request.LoginRequestDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberSummaryDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.request.RegisterMemberRequestDTO;
@@ -113,9 +114,7 @@ public class AuthController {
         repo.saveContext(context, request, response);
 
         Object principal = authentication.getPrincipal();
-        if (!(principal instanceof AuthenticatedMemberPrincipal)) {
-            throw new IllegalStateException("Unexpected principal type: " +
-                    (principal == null ? "null" : principal.getClass().getName()));
-        }
+        if (!(principal instanceof AuthenticatedMemberPrincipal))
+            throw new InternalServerException("Unexpected principal type: " + (principal != null ? principal.getClass() : null));
     }
 }

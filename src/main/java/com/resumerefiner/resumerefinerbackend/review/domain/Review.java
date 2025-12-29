@@ -2,6 +2,7 @@ package com.resumerefiner.resumerefinerbackend.review.domain;
 
 import com.resumerefiner.resumerefinerbackend.global.jpa.BaseTimeEntity;
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.AggregateRoot;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -88,12 +89,12 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
                    Short scoreClarity,
                    Short scoreTone) {
 
-        if (resumeId == null) throw new IllegalArgumentException("resumeId must not be null");
-        if (memberId == null) throw new IllegalArgumentException("memberId must not be null");
-        if (model == null || model.isBlank()) throw new IllegalArgumentException("model must not be blank");
-        if (tone == null) throw new IllegalArgumentException("tone must not be null");
-        if (summary == null) throw new IllegalArgumentException("summary must not be null");
-        if (improvedText == null) throw new IllegalArgumentException("improvedText must not be null");
+        if (resumeId == null) throw new DomainRuleViolationException("resumeId must not be null");
+        if (memberId == null) throw new DomainRuleViolationException("memberId must not be null");
+        if (model == null || model.isBlank()) throw new DomainRuleViolationException("model must not be blank");
+        if (tone == null) throw new DomainRuleViolationException("tone must not be null");
+        if (summary == null) throw new DomainRuleViolationException("summary must not be null");
+        if (improvedText == null) throw new DomainRuleViolationException("improvedText must not be null");
 
         this.resumeId = resumeId;
         this.memberId = memberId;
@@ -139,12 +140,12 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
     }
 
     public void updateSummary(String newSummary) {
-        if (newSummary == null) throw new IllegalArgumentException("summary must not be null");
+        if (newSummary == null) throw new DomainRuleViolationException("summary must not be null");
         this.summary = newSummary;
     }
 
     public void updateImprovedText(String newImprovedText) {
-        if (newImprovedText == null) throw new IllegalArgumentException("improvedText must not be null");
+        if (newImprovedText == null) throw new DomainRuleViolationException("improvedText must not be null");
         this.improvedText = newImprovedText;
     }
 }
