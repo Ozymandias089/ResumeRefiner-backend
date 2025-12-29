@@ -3,8 +3,11 @@ package com.resumerefiner.resumerefinerbackend.review.domain;
 import com.resumerefiner.resumerefinerbackend.global.jpa.BaseTimeEntity;
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.AggregateRoot;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
+import com.resumerefiner.resumerefinerbackend.review.domain.vo.ReviewCustomizationRequest;
+import com.resumerefiner.resumerefinerbackend.review.domain.vo.ReviewOutputSnapshot;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,6 +35,18 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
     private Long resumeId;
 
     @Getter
+    @Column(name = "resume_version", nullable = false)
+    private Long resumeVersion;
+
+    @Getter
+    @Column(name = "review_input_snapshot", nullable = false, columnDefinition = "jsonb")
+    private String reviewInputSnapshotJson;
+
+    @Getter
+    @Column(name = "snapshot_schema_version", nullable = false)
+    private Integer snapshotSchemaVersion;
+
+    @Getter
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
@@ -50,102 +65,78 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
     @Column(name = "tone", nullable = false, length = 20)
     private ReviewTone tone;
 
-    /**
-     * 전체 요약 피드백
-     */
     @Getter
-    @Column(name = "summary", nullable = false, columnDefinition = "TEXT")
-    private String summary;
-
-    /**
-     * 개선된 이력서 전체 텍스트 (LLM이 다듬은 버전)
-     */
-    @Getter
-    @Column(name = "improved_text", nullable = false, columnDefinition = "TEXT")
-    private String improvedText;
+    @Embedded
+    private ReviewCustomizationRequest customizationRequest;
 
     @Getter
-    @Column(name = "score_structure")
-    private Short scoreStructure;
-
-    @Getter
-    @Column(name = "score_clarity")
-    private Short scoreClarity;
-
-    @Getter
-    @Column(name = "score_tone")
-    private Short scoreTone;
+    @Embedded
+    private ReviewOutputSnapshot output;
 
     // 양방향 필요하면 여기서 OneToMany 추가할 수도 있지만,
     // 일단은 ReviewSentenceFeedback 쪽에 ManyToOne만 두고 시작해도 됨.
 
+    @Builder(access = AccessLevel.PRIVATE)
     private Review(Long resumeId,
+                   Long resumeVersion,
+                   String reviewInputSnapshotJson,
+                   Integer snapshotSchemaVersion,
                    Long memberId,
                    String model,
                    ReviewTone tone,
-                   String summary,
-                   String improvedText,
-                   Short scoreStructure,
-                   Short scoreClarity,
-                   Short scoreTone) {
+                   ReviewCustomizationRequest customizationRequest,
+                   ReviewOutputSnapshot output
+    ) {
 
         if (resumeId == null) throw new DomainRuleViolationException("resumeId must not be null");
+        if (resumeVersion == null || resumeVersion < 0) throw new DomainRuleViolationException("resumeVersion must be >= 0");
+        if (reviewInputSnapshotJson == null || reviewInputSnapshotJson.isBlank())
+            throw new DomainRuleViolationException("reviewInputSnapshotJson must not be blank");
+        if (snapshotSchemaVersion == null || snapshotSchemaVersion <= 0)
+            throw new DomainRuleViolationException("snapshotSchemaVersion must be > 0");
         if (memberId == null) throw new DomainRuleViolationException("memberId must not be null");
         if (model == null || model.isBlank()) throw new DomainRuleViolationException("model must not be blank");
         if (tone == null) throw new DomainRuleViolationException("tone must not be null");
-        if (summary == null) throw new DomainRuleViolationException("summary must not be null");
-        if (improvedText == null) throw new DomainRuleViolationException("improvedText must not be null");
+        if (output == null) throw new DomainRuleViolationException("output must not be null");
 
         this.resumeId = resumeId;
+        this.resumeVersion = resumeVersion;
+        this.reviewInputSnapshotJson = reviewInputSnapshotJson;
+        this.snapshotSchemaVersion = snapshotSchemaVersion;
         this.memberId = memberId;
         this.model = model;
         this.tone = tone;
-        this.summary = summary;
-        this.improvedText = improvedText;
-        this.scoreStructure = scoreStructure;
-        this.scoreClarity = scoreClarity;
-        this.scoreTone = scoreTone;
+        this.customizationRequest = customizationRequest;
+        this.output = output;
     }
 
     // ==== 정적 팩토리 ====
 
     public static Review create(Long resumeId,
+                                Long resumeVersion,
+                                String reviewInputSnapshotJson,
+                                Integer snapshotSchemaVersion,
                                 Long memberId,
                                 String model,
                                 ReviewTone tone,
-                                String summary,
-                                String improvedText,
-                                Short scoreStructure,
-                                Short scoreClarity,
-                                Short scoreTone) {
-        return new Review(
-                resumeId,
-                memberId,
-                model,
-                tone,
-                summary,
-                improvedText,
-                scoreStructure,
-                scoreClarity,
-                scoreTone
-        );
+                                ReviewCustomizationRequest customizationRequest,
+                                ReviewOutputSnapshot output
+                                ) {
+        return Review.builder()
+                .resumeId(resumeId)
+                .resumeVersion(resumeVersion)
+                .reviewInputSnapshotJson(reviewInputSnapshotJson)
+                .snapshotSchemaVersion(snapshotSchemaVersion)
+                .memberId(memberId)
+                .model(model)
+                .tone(tone)
+                .customizationRequest(customizationRequest)
+                .output(output)
+                .build();
     }
 
-    // ==== 비즈니스 메서드 ====
-
-    public void updateScores(Short structure, Short clarity, Short toneScore) {
-        this.scoreStructure = structure;
-        this.scoreClarity = clarity;
-        this.scoreTone = toneScore;
-    }
-
-    public void updateSummary(String newSummary) {
-        if (newSummary == null) throw new DomainRuleViolationException("summary must not be null");
-        this.summary = newSummary;
-    }
-
-    public void updateImprovedText(String newImprovedText) {
-        if (newImprovedText == null) throw new DomainRuleViolationException("improvedText must not be null");
-        this.improvedText = newImprovedText;
+    public void updateOutput(ReviewOutputSnapshot output) {
+        if (output == null) throw new DomainRuleViolationException("output must not be null");
+        this.output = output;
     }
 }
