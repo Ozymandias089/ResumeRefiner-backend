@@ -13,4 +13,6 @@ public interface ReviewRepository {
 
     int countByMemberId(Long memberId);
     List<Review> findAllByMemberId(Long memberId);
+
+    Optional<Review> findLatestByResumeIdAndMemberId(Long resumeId, Long memberId);
 }

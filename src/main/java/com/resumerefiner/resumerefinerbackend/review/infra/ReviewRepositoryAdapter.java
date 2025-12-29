@@ -38,4 +38,9 @@ public class ReviewRepositoryAdapter implements ReviewRepository {
     public List<Review> findAllByMemberId(Long memberId) {
         return jpa.findAllByMemberId(memberId);
     }
+
+    @Override
+    public Optional<Review> findLatestByResumeIdAndMemberId(Long resumeId, Long memberId) {
+        return jpa.findTopByResumeIdAndMemberIdOrderByCreatedAtDesc(resumeId, memberId);
+    }
 }
