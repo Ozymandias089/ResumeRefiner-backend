@@ -71,10 +71,10 @@ public class CreateReviewService implements CreateReviewUseCase {
 
         ReviewOutputSnapshot output = ReviewOutputSnapshot.of(outputJson, outputSchemaVersion);
 
-        // 7) 도메인 객체 만들기 + 저장
+        // aggregate 생성
         Review review = Review.create(
                 resume.getId(),
-                resume.getVersion(), // 너희 Resume에 맞게 getter 이름 확인 필요
+                resume.getVersion(),
                 inputSnapshotJson,
                 inputSchemaVersion,
                 memberId,
@@ -84,12 +84,17 @@ public class CreateReviewService implements CreateReviewUseCase {
                 output
         );
 
+        // Seq + 1
+        int nextSeq = reviewRepository.findMaxSequencePerVersion(resume.getId(), resume.getVersion()) + 1;
+        review.assignSequencePerVersion(nextSeq);
+
         Review saved = reviewRepository.save(review);
 
         return CreateReviewResponseDTO.builder()
                 .id(saved.getId())
                 .resumeId(saved.getResumeId())
                 .resumeVersion(saved.getResumeVersion())
+                .sequencePerVersion(saved.getSequencePerVersion())
                 .model(saved.getModel())
                 .tone(saved.getTone())
 

@@ -23,4 +23,6 @@ public interface ResumeRepository {
     int countByMemberId(Long memberId);
 
     Page<ResumeSummaryProjection> findResumeSummaries(Long memberId, String q, Pageable pageable);
+
+    Optional<ResumeSlug> findSlugById(Long id);
 }

@@ -35,4 +35,8 @@ public interface ResumeJpaRepository extends JpaRepository<Resume, Long> {
             Pageable pageable
     );
 
+    @Query("""
+        select r.slug as slug from Resume r where r.id = :id
+    """)
+    Optional<ResumeSlug> findSlugById(Long id);
 }

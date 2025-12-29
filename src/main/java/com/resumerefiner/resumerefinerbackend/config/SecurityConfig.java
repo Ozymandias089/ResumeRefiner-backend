@@ -56,9 +56,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/resumes/{slug}").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/resumes/{slug}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/resumes/{slug}/reviews").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/resumes/{slug}/reviews/latest").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/reviews/{reviewId}").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/resumes/{slug}/reviews").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/latest").authenticated() // TODO: Implement this shit you Dumb bitch
                         .anyRequest().authenticated()
                 )
                 // 세션 기반 인증을 쓸 것이므로 stateless(X)

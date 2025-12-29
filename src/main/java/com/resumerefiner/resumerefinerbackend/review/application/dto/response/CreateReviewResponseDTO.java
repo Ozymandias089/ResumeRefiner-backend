@@ -10,6 +10,7 @@ public record CreateReviewResponseDTO(
         Long id,
         Long resumeId,
         Long resumeVersion,
+        int sequencePerVersion,
         String model,
         ReviewTone tone,
 

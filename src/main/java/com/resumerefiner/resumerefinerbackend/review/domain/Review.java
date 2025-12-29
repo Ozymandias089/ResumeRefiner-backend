@@ -16,7 +16,8 @@ import lombok.NoArgsConstructor;
         name = "review",
         indexes = {
                 @Index(name = "idx_review_resume_id", columnList = "resume_id"),
-                @Index(name = "idx_review_member_id", columnList = "member_id")
+                @Index(name = "idx_review_member_id", columnList = "member_id"),
+                @Index(name = "idx_review_resume_version", columnList = "resume_id,resume_version")
         }
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -37,6 +38,13 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
     @Getter
     @Column(name = "resume_version", nullable = false)
     private Long resumeVersion;
+
+    /**
+     * (resume_id, resume_version) 내에서의 순번 (#1, #2, ...)
+     */
+    @Getter
+    @Column(name = "sequence_per_version", nullable = false)
+    private Integer sequencePerVersion;
 
     @Getter
     @Column(name = "review_input_snapshot", nullable = false, columnDefinition = "jsonb")
@@ -108,6 +116,9 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
         this.tone = tone;
         this.customizationRequest = customizationRequest;
         this.output = output;
+
+        // sequencePerVersion는 생성 시점에 서비스에서 assign한다.
+        this.sequencePerVersion = 0; // 임시값 (DB NOT NULL이면 저장 전 반드시 assign되어야 함)
     }
 
     // ==== 정적 팩토리 ====
@@ -133,6 +144,11 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
                 .customizationRequest(customizationRequest)
                 .output(output)
                 .build();
+    }
+
+    public void assignSequencePerVersion(int seq) {
+        if (seq <= 0) throw new DomainRuleViolationException("sequencePerVersion must be > 0");
+        this.sequencePerVersion = seq;
     }
 
     public void updateOutput(ReviewOutputSnapshot output) {

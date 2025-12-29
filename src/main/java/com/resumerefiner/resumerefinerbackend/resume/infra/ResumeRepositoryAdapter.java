@@ -60,4 +60,9 @@ public class ResumeRepositoryAdapter implements ResumeRepository {
                         .build()
                 );
     }
+
+    @Override
+    public Optional<ResumeSlug> findSlugById(Long id) {
+        return jpa.findSlugById(id);
+    }
 }
