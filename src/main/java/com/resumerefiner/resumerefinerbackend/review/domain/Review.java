@@ -146,6 +146,11 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
                 .build();
     }
 
+    public String buildTitle(String resumeTitle){
+        int s = (this.sequencePerVersion == null ? 0 : this.sequencePerVersion);
+        return "%s · v%d · #%d".formatted(resumeTitle, this.resumeVersion, s);
+    }
+
     public void assignSequencePerVersion(int seq) {
         if (seq <= 0) throw new DomainRuleViolationException("sequencePerVersion must be > 0");
         this.sequencePerVersion = seq;

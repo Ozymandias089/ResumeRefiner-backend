@@ -3,8 +3,8 @@ package com.resumerefiner.resumerefinerbackend.review.application.service;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.InvalidCredentialsException;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.ResourceNotFoundException;
 import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
+import com.resumerefiner.resumerefinerbackend.resume.application.ports.out.ResumeSlugTitleRow;
 import com.resumerefiner.resumerefinerbackend.resume.domain.ResumeRepository;
-import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeSlug;
 import com.resumerefiner.resumerefinerbackend.review.application.dto.response.GetReviewDetailResponseDTO;
 import com.resumerefiner.resumerefinerbackend.review.application.port.in.GetReviewDetailUseCase;
 import com.resumerefiner.resumerefinerbackend.review.domain.Review;
@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class GetReviewDetailService implements GetReviewDetailUseCase {
+
     private final ReviewRepository reviewRepository;
     private final ResumeRepository resumeRepository;
     private final MemberRepository memberRepository;
@@ -32,15 +33,23 @@ public class GetReviewDetailService implements GetReviewDetailUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException("Review not found"));
 
         if (!memberId.equals(review.getMemberId())) {
-            log.error("Member id mismatch");
+            log.warn("Member id mismatch. memberId={}, reviewOwnerId={}", memberId, review.getMemberId());
             throw new InvalidCredentialsException("Member id mismatch");
         }
 
-        String slug = resumeRepository.findSlugById(review.getResumeId())
-                .map(ResumeSlug::getValue)
-                .orElse("UNKNOWN");
+        // slug+title 한 번에 조회 (없으면 UNKNOWN/UNTITLED로 대체)
+        ResumeSlugTitleRow row = resumeRepository.findSlugTitleById(review.getResumeId()).orElse(null);
 
-        String title = buildTitle(slug, review.getResumeVersion(), review.getSequencePerVersion());
+        String slug = (row != null && row.getSlug() != null)
+                ? row.getSlug().getValue()
+                : "UNKNOWN";
+
+        String resumeTitle = (row != null && row.getTitle() != null && !row.getTitle().isBlank())
+                ? row.getTitle()
+                : "UNTITLED";
+
+        // ✅ 도메인 메서드로 title 생성
+        String title = review.buildTitle(resumeTitle);
 
         return GetReviewDetailResponseDTO.builder()
                 .reviewId(review.getId())
@@ -63,10 +72,5 @@ public class GetReviewDetailService implements GetReviewDetailUseCase {
                 .outputSchemaVersion(review.getOutput().getSchemaVersion())
                 .outputJson(review.getOutput().getJson())
                 .build();
-    }
-
-    private String buildTitle(String slug, long resumeVersion, Integer seq) {
-        int s = (seq == null ? 0 : seq);
-        return "%s · v%d · #%d".formatted(slug, resumeVersion, s);
     }
 }

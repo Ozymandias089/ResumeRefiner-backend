@@ -1,5 +1,6 @@
 package com.resumerefiner.resumerefinerbackend.resume.domain;
 
+import com.resumerefiner.resumerefinerbackend.resume.application.ports.out.ResumeSlugTitleRow;
 import com.resumerefiner.resumerefinerbackend.resume.application.ports.out.ResumeSummaryProjection;
 import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeSlug;
 import org.springframework.data.domain.Page;
@@ -25,4 +26,6 @@ public interface ResumeRepository {
     Page<ResumeSummaryProjection> findResumeSummaries(Long memberId, String q, Pageable pageable);
 
     Optional<ResumeSlug> findSlugById(Long id);
+
+    Optional<ResumeSlugTitleRow> findSlugTitleById(Long resumeId);
 }
