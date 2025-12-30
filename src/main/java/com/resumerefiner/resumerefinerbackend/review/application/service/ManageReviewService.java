@@ -1,6 +1,5 @@
 package com.resumerefiner.resumerefinerbackend.review.application.service;
 
-import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.InternalServerException;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.InvalidCredentialsException;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.ResourceNotFoundException;
 import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainConflictException;
