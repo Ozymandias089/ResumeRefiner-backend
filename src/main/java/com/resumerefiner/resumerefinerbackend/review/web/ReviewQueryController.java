@@ -3,8 +3,10 @@ package com.resumerefiner.resumerefinerbackend.review.web;
 import com.resumerefiner.resumerefinerbackend.global.security.AuthenticatedMember;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
 import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeSlug;
+import com.resumerefiner.resumerefinerbackend.review.application.dto.internal.ReviewListItemDTO;
 import com.resumerefiner.resumerefinerbackend.review.application.dto.response.GetReviewPageResponseDTO;
 import com.resumerefiner.resumerefinerbackend.review.application.port.in.PageMyReviewsUseCase;
+import com.resumerefiner.resumerefinerbackend.review.application.port.in.ReviewQueryUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReviewQueryController {
     private final PageMyReviewsUseCase pageMyReviewsUseCase;
+    private final ReviewQueryUseCase reviewQueryUseCase;
 
     /**
      * 내 전체 리뷰 최신 목록 조회
@@ -58,5 +61,22 @@ public class ReviewQueryController {
                         .build()
         );
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/resumes/{slug}/reviews/latest")
+    public ResponseEntity<ReviewListItemDTO> getLatestReview(
+            @PathVariable String slug,
+            @AuthenticatedMember Handle handle
+    ) {
+        Optional<ReviewListItemDTO> dtoOpt = reviewQueryUseCase.get(
+                ReviewQueryUseCase.GetLatestReviewQueryCommand.builder()
+                        .handle(handle)
+                        .slug(ResumeSlug.of(slug))
+                        .build()
+        );
+
+        return dtoOpt
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
     }
 }

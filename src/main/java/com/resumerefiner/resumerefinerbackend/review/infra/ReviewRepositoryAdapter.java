@@ -22,6 +22,11 @@ public class ReviewRepositoryAdapter implements ReviewRepository {
     }
 
     @Override
+    public void delete(Review review) {
+        jpa.delete(review);
+    }
+
+    @Override
     public Optional<Review> findById(Long id) {
         return jpa.findById(id);
     }
