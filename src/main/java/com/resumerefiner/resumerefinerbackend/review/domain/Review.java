@@ -10,6 +10,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(
@@ -47,6 +49,7 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
     private Integer sequencePerVersion;
 
     @Getter
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "review_input_snapshot", nullable = false, columnDefinition = "jsonb")
     private String reviewInputSnapshotJson;
 
@@ -73,16 +76,29 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
     @Column(name = "tone", nullable = false, length = 20)
     private ReviewTone tone;
 
+    /**
+     * 커스텀 요청 JSON (nullable)
+     */
     @Getter
-    @Embedded
-    private ReviewCustomizationRequest customizationRequest;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "custom_request", columnDefinition = "jsonb")
+    private String customRequestJson;
 
     @Getter
-    @Embedded
-    private ReviewOutputSnapshot output;
+    @Column(name = "custom_request_schema_version")
+    private Integer customRequestSchemaVersion;
 
-    // 양방향 필요하면 여기서 OneToMany 추가할 수도 있지만,
-    // 일단은 ReviewSentenceFeedback 쪽에 ManyToOne만 두고 시작해도 됨.
+    /**
+     * LLM 결과 JSON (not null)
+     */
+    @Getter
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "review_output", nullable = false, columnDefinition = "jsonb")
+    private String reviewOutputJson;
+
+    @Getter
+    @Column(name = "output_schema_version", nullable = false)
+    private Integer outputSchemaVersion;
 
     @Builder(access = AccessLevel.PRIVATE)
     private Review(Long resumeId,
@@ -95,7 +111,6 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
                    ReviewCustomizationRequest customizationRequest,
                    ReviewOutputSnapshot output
     ) {
-
         if (resumeId == null) throw new DomainRuleViolationException("resumeId must not be null");
         if (resumeVersion == null || resumeVersion < 0) throw new DomainRuleViolationException("resumeVersion must be >= 0");
         if (reviewInputSnapshotJson == null || reviewInputSnapshotJson.isBlank())
@@ -106,6 +121,10 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
         if (model == null || model.isBlank()) throw new DomainRuleViolationException("model must not be blank");
         if (tone == null) throw new DomainRuleViolationException("tone must not be null");
         if (output == null) throw new DomainRuleViolationException("output must not be null");
+        if (output.getJson() == null || output.getJson().isBlank())
+            throw new DomainRuleViolationException("output json must not be blank");
+        if (output.getSchemaVersion() <= 0)
+            throw new DomainRuleViolationException("output schemaVersion must be > 0");
 
         this.resumeId = resumeId;
         this.resumeVersion = resumeVersion;
@@ -114,8 +133,14 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
         this.memberId = memberId;
         this.model = model;
         this.tone = tone;
-        this.customizationRequest = customizationRequest;
-        this.output = output;
+
+        // ✅ jsonb 1컬럼 저장(커스텀 요청은 nullable)
+        this.customRequestJson = (customizationRequest != null ? customizationRequest.getJson() : null);
+        this.customRequestSchemaVersion = (customizationRequest != null ? customizationRequest.getSchemaVersion() : null);
+
+        // ✅ jsonb 1컬럼 저장(출력은 not null)
+        this.reviewOutputJson = output.getJson();
+        this.outputSchemaVersion = output.getSchemaVersion();
 
         // sequencePerVersion는 생성 시점에 서비스에서 assign한다.
         this.sequencePerVersion = 0; // 임시값 (DB NOT NULL이면 저장 전 반드시 assign되어야 함)
@@ -132,7 +157,7 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
                                 ReviewTone tone,
                                 ReviewCustomizationRequest customizationRequest,
                                 ReviewOutputSnapshot output
-                                ) {
+    ) {
         return Review.builder()
                 .resumeId(resumeId)
                 .resumeVersion(resumeVersion)
@@ -146,7 +171,27 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
                 .build();
     }
 
-    public String buildTitle(String resumeTitle){
+    /**
+     * ✅ API/서비스 코드 호환용 (스펙 유지)
+     * 기존에 review.getCustomizationRequest()로 읽던 코드가 그대로 동작하도록 복원 객체를 제공한다.
+     */
+    @Transient
+    public ReviewCustomizationRequest getCustomizationRequest() {
+        if (customRequestJson == null || customRequestJson.isBlank()) return null;
+        int v = (customRequestSchemaVersion == null ? 1 : customRequestSchemaVersion);
+        return ReviewCustomizationRequest.of(customRequestJson, v);
+    }
+
+    /**
+     * ✅ API/서비스 코드 호환용 (스펙 유지)
+     * 기존에 review.getOutput()으로 읽던 코드가 그대로 동작하도록 복원 객체를 제공한다.
+     */
+    @Transient
+    public ReviewOutputSnapshot getOutput() {
+        return ReviewOutputSnapshot.of(reviewOutputJson, outputSchemaVersion);
+    }
+
+    public String buildTitle(String resumeTitle) {
         int s = (this.sequencePerVersion == null ? 0 : this.sequencePerVersion);
         return "%s · v%d · #%d".formatted(resumeTitle, this.resumeVersion, s);
     }
@@ -156,8 +201,17 @@ public class Review extends BaseTimeEntity implements AggregateRoot {
         this.sequencePerVersion = seq;
     }
 
+    /**
+     * 출력 갱신도 저장 필드로 직접 반영
+     */
     public void updateOutput(ReviewOutputSnapshot output) {
         if (output == null) throw new DomainRuleViolationException("output must not be null");
-        this.output = output;
+        if (output.getJson() == null || output.getJson().isBlank())
+            throw new DomainRuleViolationException("output json must not be blank");
+        if (output.getSchemaVersion() <= 0)
+            throw new DomainRuleViolationException("output schemaVersion must be > 0");
+
+        this.reviewOutputJson = output.getJson();
+        this.outputSchemaVersion = output.getSchemaVersion();
     }
 }
