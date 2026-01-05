@@ -1,5 +1,6 @@
 package com.resumerefiner.resumerefinerbackend.resume.infra;
 
+import com.resumerefiner.resumerefinerbackend.resume.application.ports.out.ResumeSlugTitleRow;
 import com.resumerefiner.resumerefinerbackend.resume.application.ports.out.ResumeSummaryProjection;
 import com.resumerefiner.resumerefinerbackend.resume.domain.Resume;
 import com.resumerefiner.resumerefinerbackend.resume.domain.ResumeRepository;
@@ -59,5 +60,15 @@ public class ResumeRepositoryAdapter implements ResumeRepository {
                         .reviewCount(0L)
                         .build()
                 );
+    }
+
+    @Override
+    public Optional<ResumeSlug> findSlugById(Long id) {
+        return jpa.findSlugById(id);
+    }
+
+    @Override
+    public Optional<ResumeSlugTitleRow> findSlugTitleById(Long resumeId) {
+        return jpa.findSlugTitleById(resumeId);
     }
 }

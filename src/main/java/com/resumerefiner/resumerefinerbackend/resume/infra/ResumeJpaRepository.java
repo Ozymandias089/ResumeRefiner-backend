@@ -1,5 +1,6 @@
 package com.resumerefiner.resumerefinerbackend.resume.infra;
 
+import com.resumerefiner.resumerefinerbackend.resume.application.ports.out.ResumeSlugTitleRow;
 import com.resumerefiner.resumerefinerbackend.resume.application.ports.out.ResumeSummaryRow;
 import com.resumerefiner.resumerefinerbackend.resume.domain.Resume;
 import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeSlug;
@@ -35,4 +36,15 @@ public interface ResumeJpaRepository extends JpaRepository<Resume, Long> {
             Pageable pageable
     );
 
+    @Query("""
+        select r.slug as slug from Resume r where r.id = :id
+    """)
+    Optional<ResumeSlug> findSlugById(Long id);
+
+    @Query("""
+        select r.slug as slug, r.title as title
+        from Resume r
+        where r.id = :id
+    """)
+    Optional<ResumeSlugTitleRow> findSlugTitleById(Long id);
 }
