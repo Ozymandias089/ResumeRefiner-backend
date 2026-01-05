@@ -50,7 +50,7 @@ public class CreateReviewService implements CreateReviewUseCase {
         // 4) input snapshot json 생성
         ReviewInputSnapshot inputSnapshot = ReviewInputSnapshot.from(resume, command.stage());
         String inputSnapshotJson = toJson(inputSnapshot);
-        Integer inputSchemaVersion = inputSnapshot.schemaVersion();
+        int inputSchemaVersion = inputSnapshot.schemaVersion();
 
         // 5) customization request (optional)
         ReviewCustomizationRequest custom = null;
