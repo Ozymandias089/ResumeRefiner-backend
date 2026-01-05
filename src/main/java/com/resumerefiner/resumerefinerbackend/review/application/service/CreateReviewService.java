@@ -8,6 +8,7 @@ import com.resumerefiner.resumerefinerbackend.resume.domain.Resume;
 import com.resumerefiner.resumerefinerbackend.resume.domain.ResumeRepository;
 import com.resumerefiner.resumerefinerbackend.review.application.dto.response.CreateReviewResponseDTO;
 import com.resumerefiner.resumerefinerbackend.review.application.port.in.CreateReviewUseCase;
+import com.resumerefiner.resumerefinerbackend.review.application.port.out.ReviewLlmClient;
 import com.resumerefiner.resumerefinerbackend.review.domain.Review;
 import com.resumerefiner.resumerefinerbackend.review.domain.ReviewRepository;
 import com.resumerefiner.resumerefinerbackend.review.domain.vo.ReviewCustomizationRequest;
@@ -28,6 +29,7 @@ public class CreateReviewService implements CreateReviewUseCase {
     private final MemberRepository memberRepository;
     private final ResumeRepository resumeRepository;
     private final ObjectMapper objectMapper;
+    private final ReviewLlmClient reviewLlmClient;
 
     @Override
     @Transactional
@@ -56,18 +58,16 @@ public class CreateReviewService implements CreateReviewUseCase {
             custom = ReviewCustomizationRequest.of(command.customizationRequestJson().trim(), 1);
         }
 
-        // 6) AI 요청 보내기 (MVP: 더미)
-        // TODO: 실제 LLM 연동 서비스로 교체
-        String model = "dummy-model";
-        String outputJson = """
-                {
-                  "schemaVersion": 1,
-                  "summary": "dummy summary",
-                  "overallImprovedText": "dummy improved text",
-                  "sectionResults": []
-                }
-                """;
-        Integer outputSchemaVersion = 1;
+        ReviewLlmClient.Result llm = reviewLlmClient.generateReview(
+                inputSnapshotJson,
+                inputSchemaVersion,
+                command.tone(),
+                custom
+        );
+
+        String model = llm.model();
+        Integer outputSchemaVersion = llm.outputSchemaVersion();
+        String outputJson = llm.outputJson();
 
         ReviewOutputSnapshot output = ReviewOutputSnapshot.of(outputJson, outputSchemaVersion);
 
