@@ -1,6 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.config;
 
 import com.resumerefiner.resumerefinerbackend.global.security.MemberAuthProvider;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,17 @@ public class SecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
+                .anonymous(AbstractHttpConfigurer::disable) // ⭐ 핵심
+                .exceptionHandling(e -> e
+                        // 인증 안 된 경우 → 401
+                        .authenticationEntryPoint((req, res, ex) -> {
+                            res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                        })
+                        // 인증은 됐으나 접근 불가 → 403
+                        .accessDeniedHandler((req, res, ex) -> {
+                            res.sendError(HttpServletResponse.SC_FORBIDDEN);
+                        })
+                )
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 열어둘 API들
                         .requestMatchers(
