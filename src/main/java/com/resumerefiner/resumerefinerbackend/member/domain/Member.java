@@ -94,7 +94,7 @@ public class Member extends BaseTimeEntity implements AggregateRoot {
                 Provider.LOCAL,
                 null,
                 null,
-                0
+                10
         );
     }
 
@@ -108,7 +108,7 @@ public class Member extends BaseTimeEntity implements AggregateRoot {
                 provider,
                 providerUserId,
                 null,
-                0
+                10
         );
     }
 
