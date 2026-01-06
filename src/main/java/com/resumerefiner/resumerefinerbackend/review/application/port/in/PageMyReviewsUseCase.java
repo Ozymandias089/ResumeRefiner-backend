@@ -8,10 +8,10 @@ import lombok.Builder;
 import java.util.Optional;
 
 public interface PageMyReviewsUseCase {
-    GetReviewPageResponseDTO page(PageMyReviewsCommand command);
+    GetReviewPageResponseDTO page(PageMyReviewsQuery query);
 
     @Builder
-    record PageMyReviewsCommand(
+    record PageMyReviewsQuery(
             Handle handle,
             Optional<ResumeSlug> slug, // 있으면 이력서별, 없으면 전체
             int page,

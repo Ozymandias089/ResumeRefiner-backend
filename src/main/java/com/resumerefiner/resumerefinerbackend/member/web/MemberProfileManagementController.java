@@ -6,7 +6,7 @@ import com.resumerefiner.resumerefinerbackend.member.application.dto.request.Cha
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.ChangePasswordResponseDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberDetailsResponseDTO;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetProfileUseCase;
-import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetProfileUseCase.GetProfileCommand;
+import com.resumerefiner.resumerefinerbackend.member.application.port.in.GetProfileUseCase.GetProfileQuery;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.ManageProfileUseCase;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.ManageProfileUseCase.ChangePasswordCommand;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.ManageProfileUseCase.ChangeInfoCommand;
@@ -29,7 +29,7 @@ public class MemberProfileManagementController {
     @GetMapping(produces = "application/json")
     public ResponseEntity<MemberDetailsResponseDTO> getProfile(@AuthenticatedMember Handle handle) {
         return ResponseEntity.ok(
-                getProfileUseCase.getMyProfile(new GetProfileCommand(handle))
+                getProfileUseCase.getMyProfile(new GetProfileQuery(handle))
         );
     }
 

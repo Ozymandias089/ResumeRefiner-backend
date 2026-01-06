@@ -8,8 +8,8 @@ import lombok.Builder;
 import java.util.Optional;
 
 public interface ReviewQueryUseCase {
-    Optional<ReviewListItemDTO> get(GetLatestReviewQueryCommand command);
+    Optional<ReviewListItemDTO> get(GetLatestReviewQuery query);
 
     @Builder
-    record GetLatestReviewQueryCommand(Handle handle, ResumeSlug slug) {}
+    record GetLatestReviewQuery(Handle handle, ResumeSlug slug) {}
 }

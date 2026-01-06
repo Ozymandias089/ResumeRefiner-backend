@@ -37,14 +37,14 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
 
     @Override
     @Transactional(readOnly = true)
-    public GetResumeResponseDTO getResumeDetails(GetResumeDetailsCommand command) {
-        Long id = memberRepository.findMemberIdByHandle(command.handle())
+    public GetResumeResponseDTO getResumeDetails(GetResumeDetailsQuery query) {
+        Long id = memberRepository.findMemberIdByHandle(query.handle())
                 .orElseThrow(() -> new InvalidCredentialsException("Member not found"));
-        log.debug("Get resume details for member {}", command.handle().toString());
+        log.debug("Get resume details for member {}", query.handle().toString());
 
-        Resume resume = resumeRepository.findBySlug(command.slug())
+        Resume resume = resumeRepository.findBySlug(query.slug())
                 .orElseThrow(() -> new ResourceNotFoundException("Resume Not Found"));
-        log.debug("Get resume details for member {}", command.handle().toString());
+        log.debug("Get resume details for member {}", query.handle().toString());
 
         if (!resume.getMemberId().equals(id)) {
             log.warn("Illegal Access Detected");
@@ -133,18 +133,18 @@ public class GetResumeDetailsService implements GetResumeDetailsUseCase, PageRes
 
     @Override
     @Transactional(readOnly = true)
-    public GetResumeSummaryListResponseDTO getResumeSummaryList(GetResumeSummaryCommand command) {
+    public GetResumeSummaryListResponseDTO getResumeSummaryList(GetResumeSummaryQuery query) {
         // Fetch Member ID with Handle
-        Long memberId = memberRepository.findMemberIdByHandle(command.handle())
+        Long memberId = memberRepository.findMemberIdByHandle(query.handle())
                 .orElseThrow(() -> new InvalidCredentialsException("Member not found"));
 
         // Create Pageable Object
-        ResumeSort sort = command.sort() != null ? command.sort() : ResumeSort.UPDATED_AT_DESC;
-        int page = Math.max(command.page(), 0);
-        int size = Math.min(Math.max(command.size(), 1), 50);
+        ResumeSort sort = query.sort() != null ? query.sort() : ResumeSort.UPDATED_AT_DESC;
+        int page = Math.max(query.page(), 0);
+        int size = Math.min(Math.max(query.size(), 1), 50);
         Pageable pageable = PageRequest.of(page, size, ResumeSort.toSort(sort));
 
-        String q = command.q();
+        String q = query.q();
         q = (q == null) ? null : q.trim();
 
         // Query Summary Projection with id, pageable

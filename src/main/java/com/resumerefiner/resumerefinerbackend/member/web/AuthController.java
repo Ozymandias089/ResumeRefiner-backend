@@ -83,7 +83,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public MemberSummaryDTO me(@AuthenticatedMember Handle handle) {
-        return getMeUseCase.getMe(new GetMeUseCase.GetMeCommand(handle));
+        return getMeUseCase.getMe(new GetMeUseCase.GetMeQuery(handle));
     }
 
     /**

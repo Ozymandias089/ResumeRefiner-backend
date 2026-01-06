@@ -6,9 +6,9 @@ import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
 import com.resumerefiner.resumerefinerbackend.resume.application.dto.response.GetResumeResponseDTO;
 import com.resumerefiner.resumerefinerbackend.resume.application.dto.response.GetResumeSummaryListResponseDTO;
 import com.resumerefiner.resumerefinerbackend.resume.application.ports.in.GetResumeDetailsUseCase;
-import com.resumerefiner.resumerefinerbackend.resume.application.ports.in.GetResumeDetailsUseCase.GetResumeDetailsCommand;
+import com.resumerefiner.resumerefinerbackend.resume.application.ports.in.GetResumeDetailsUseCase.GetResumeDetailsQuery;
 import com.resumerefiner.resumerefinerbackend.resume.application.ports.in.PageResumeUseCase;
-import com.resumerefiner.resumerefinerbackend.resume.application.ports.in.PageResumeUseCase.GetResumeSummaryCommand;
+import com.resumerefiner.resumerefinerbackend.resume.application.ports.in.PageResumeUseCase.GetResumeSummaryQuery;
 import com.resumerefiner.resumerefinerbackend.resume.domain.ResumeSort;
 import com.resumerefiner.resumerefinerbackend.resume.domain.vo.ResumeSlug;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class ReadResumeController {
             @PathVariable String slug
     ){
         GetResumeResponseDTO dto = getResumeDetailsUseCase.getResumeDetails(
-                GetResumeDetailsCommand.builder()
+                GetResumeDetailsQuery.builder()
                         .handle(handle)
                         .slug(ResumeSlug.of(slug))
                         .build()
@@ -49,7 +49,7 @@ public class ReadResumeController {
             @RequestParam(required = false) String q
     ) {
         GetResumeSummaryListResponseDTO dto = pageResumeUseCase.getResumeSummaryList(
-                GetResumeSummaryCommand.builder()
+                GetResumeSummaryQuery.builder()
                         .handle(handle)
                         .page(page)
                         .size(size)

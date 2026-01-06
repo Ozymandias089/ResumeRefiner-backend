@@ -4,7 +4,7 @@ import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
 import com.resumerefiner.resumerefinerbackend.member.application.dto.response.MemberSummaryDTO;
 
 public interface GetMeUseCase {
-    MemberSummaryDTO getMe(GetMeCommand q);
+    MemberSummaryDTO getMe(GetMeQuery q);
 
-    record GetMeCommand(Handle handle){}
+    record GetMeQuery(Handle handle){}
 }

@@ -31,10 +31,10 @@ public class MemberProfileManagementService implements GetProfileUseCase, Manage
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public MemberDetailsResponseDTO getMyProfile(GetProfileCommand command) {
-        log.info("POST /api/profile Service Entry with Handle: {}", command.handle().toString());
+    public MemberDetailsResponseDTO getMyProfile(GetProfileQuery query) {
+        log.info("POST /api/profile Service Entry with Handle: {}", query.handle().toString());
         // 1. 커맨드에서 핸들을 통해 정보를 불러온다.
-        Member member = memberRepository.findByHandle(command.handle())
+        Member member = memberRepository.findByHandle(query.handle())
                 .orElseThrow(() -> new InvalidCredentialsException("Member Not found"));
         log.info("POST /api/profile Service \n Member {} found with id: {}", member.getHandle().toString(), member.getId());
 

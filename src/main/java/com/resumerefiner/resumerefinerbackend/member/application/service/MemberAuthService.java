@@ -33,7 +33,7 @@ public class MemberAuthService implements RegisterMemberUseCase, LoginUseCase, G
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public MemberSummaryDTO getMe(GetMeCommand q) {
+    public MemberSummaryDTO getMe(GetMeQuery q) {
         Member member = memberRepository.findByHandle(new Handle(q.handle().getValue()))
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
 

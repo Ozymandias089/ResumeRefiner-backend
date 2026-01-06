@@ -7,8 +7,8 @@ import lombok.Builder;
 
 public interface PageResumeUseCase {
 
-    GetResumeSummaryListResponseDTO getResumeSummaryList(GetResumeSummaryCommand command);
+    GetResumeSummaryListResponseDTO getResumeSummaryList(GetResumeSummaryQuery query);
 
     @Builder
-    record GetResumeSummaryCommand(Handle handle, int page, int size, ResumeSort sort, String q){}
+    record GetResumeSummaryQuery(Handle handle, int page, int size, ResumeSort sort, String q){}
 }

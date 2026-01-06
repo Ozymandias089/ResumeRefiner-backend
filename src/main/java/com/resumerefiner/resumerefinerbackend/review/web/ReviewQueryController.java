@@ -31,7 +31,7 @@ public class ReviewQueryController {
             @RequestParam(defaultValue = "20") int size
     ) {
         GetReviewPageResponseDTO response = pageMyReviewsUseCase.page(
-                PageMyReviewsUseCase.PageMyReviewsCommand.builder()
+                PageMyReviewsUseCase.PageMyReviewsQuery.builder()
                         .handle(handle)
                         .slug(Optional.empty())
                         .page(page)
@@ -53,7 +53,7 @@ public class ReviewQueryController {
             @RequestParam(defaultValue = "20") int size
     ) {
         GetReviewPageResponseDTO response = pageMyReviewsUseCase.page(
-                PageMyReviewsUseCase.PageMyReviewsCommand.builder()
+                PageMyReviewsUseCase.PageMyReviewsQuery.builder()
                         .handle(handle)
                         .slug(Optional.of(ResumeSlug.of(slug)))
                         .page(page)
@@ -69,7 +69,7 @@ public class ReviewQueryController {
             @AuthenticatedMember Handle handle
     ) {
         Optional<ReviewListItemDTO> dtoOpt = reviewQueryUseCase.get(
-                ReviewQueryUseCase.GetLatestReviewQueryCommand.builder()
+                ReviewQueryUseCase.GetLatestReviewQuery.builder()
                         .handle(handle)
                         .slug(ResumeSlug.of(slug))
                         .build()

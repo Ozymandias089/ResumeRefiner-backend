@@ -32,20 +32,20 @@ public class PageMyReviewsService implements PageMyReviewsUseCase, ReviewQueryUs
 
     @Override
     @Transactional(readOnly = true)
-    public GetReviewPageResponseDTO page(PageMyReviewsCommand command) {
-        Long memberId = memberRepository.findMemberIdByHandle(command.handle())
+    public GetReviewPageResponseDTO page(PageMyReviewsQuery query) {
+        Long memberId = memberRepository.findMemberIdByHandle(query.handle())
                 .orElseThrow(() -> new InvalidCredentialsException("Member not found"));
 
         var pageable = PageRequest.of(
-                Math.max(command.page(), 0),
-                clampSize(command.size())
+                Math.max(query.page(), 0),
+                clampSize(query.size())
         );
 
         Page<Review> pageResult;
 
         // slug가 있으면 "이력서별"
-        if (command.slug() != null && command.slug().isPresent()) {
-            Resume resume = resumeRepository.findBySlug(command.slug().get())
+        if (query.slug() != null && query.slug().isPresent()) {
+            Resume resume = resumeRepository.findBySlug(query.slug().get())
                     .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
 
             if (!resume.getMemberId().equals(memberId)) {
@@ -99,11 +99,11 @@ public class PageMyReviewsService implements PageMyReviewsUseCase, ReviewQueryUs
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<ReviewListItemDTO> get(GetLatestReviewQueryCommand command) {
-        Long memberId = memberRepository.findMemberIdByHandle(command.handle())
+    public Optional<ReviewListItemDTO> get(GetLatestReviewQuery query) {
+        Long memberId = memberRepository.findMemberIdByHandle(query.handle())
                 .orElseThrow(() -> new InvalidCredentialsException("Member not found"));
 
-        Resume resume = resumeRepository.findBySlug(command.slug())
+        Resume resume = resumeRepository.findBySlug(query.slug())
                 .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
 
         if (!resume.getMemberId().equals(memberId)) {

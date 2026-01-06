@@ -7,8 +7,8 @@ import lombok.Builder;
 
 public interface GetResumeDetailsUseCase {
 
-    GetResumeResponseDTO getResumeDetails(GetResumeDetailsCommand command);
+    GetResumeResponseDTO getResumeDetails(GetResumeDetailsQuery query);
 
     @Builder
-    record GetResumeDetailsCommand(Handle handle, ResumeSlug slug){}
+    record GetResumeDetailsQuery(Handle handle, ResumeSlug slug){}
 }
