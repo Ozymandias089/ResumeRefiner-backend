@@ -9,6 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * NOTE:
+ * This class is intentionally framework-agnostic.
+ * Planned to be extracted as a standalone library after v1.0 release.
+ */
 public final class ResumeSlugGenerator {
 
     private static final SecureRandom RANDOM = new SecureRandom();
