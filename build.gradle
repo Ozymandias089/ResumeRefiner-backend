@@ -47,6 +47,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation platform("software.amazon.awssdk:bom:2.25.60")
     implementation "software.amazon.awssdk:s3"
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
     // Spring Boot 4.0 = Spring AI 2.x 라인 → 현재 공개된 건 2.0.0-M1
     implementation platform("org.springframework.ai:spring-ai-bom:2.0.0-M1")

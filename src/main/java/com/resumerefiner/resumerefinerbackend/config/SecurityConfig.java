@@ -1,6 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.config;
 
 import com.resumerefiner.resumerefinerbackend.global.security.MemberAuthProvider;
+import com.resumerefiner.resumerefinerbackend.global.security.oauth.OAuth2LoginSuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -24,13 +25,14 @@ import java.util.List;
 public class SecurityConfig {
 
     private final MemberAuthProvider memberAuthProvider;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .anonymous(AbstractHttpConfigurer::disable) // ⭐ 핵심
+                .anonymous(AbstractHttpConfigurer::disable)
                 .exceptionHandling(e -> e
                         // 인증 안 된 경우 → 401
                         .authenticationEntryPoint((req, res, ex) -> {
@@ -50,7 +52,11 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/logout",
                                 "/api/handle/check",
-                                "/api/email/check"
+                                "/api/email/check",
+
+                                // Mandatory for OAuth2 features
+                                "/oauth2/**",
+                                "/login/oauth2/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/profile").authenticated()
@@ -80,7 +86,13 @@ public class SecurityConfig {
                 )
                 // 폼 로그인/기본 로그인은 안 쓰고, 우리가 만든 REST 로그인만 사용
                 .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable);
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .oauth2Login(oauth -> oauth
+                        .successHandler(oAuth2LoginSuccessHandler)
+                        .failureHandler((request, response, exception) -> {
+                            response.sendRedirect("http://localhost:3000/oauth/failure");
+                        })
+                );
 
         return http.build();
     }
@@ -93,7 +105,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "https://app.resumerefiner.com"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // withCredentials: true
