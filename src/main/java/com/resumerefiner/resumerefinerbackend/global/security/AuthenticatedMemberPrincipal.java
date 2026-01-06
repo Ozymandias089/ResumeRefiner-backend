@@ -1,10 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.global.security;
 
-import com.resumerefiner.resumerefinerbackend.member.domain.Member;
 import com.resumerefiner.resumerefinerbackend.member.domain.Role;
-import com.resumerefiner.resumerefinerbackend.member.domain.vo.Email;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
-import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
