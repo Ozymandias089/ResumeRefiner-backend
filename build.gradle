@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.resumerefiner'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0'
 description = 'ResumeRefiner-backend'
 
 java {
@@ -22,6 +22,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url "https://repo.spring.io/milestone" }
 }
 
 dependencies {
@@ -31,6 +32,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-session-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
@@ -42,6 +45,13 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // Spring Boot 4.0 = Spring AI 2.x 라인 → 현재 공개된 건 2.0.0-M1
+    implementation platform("org.springframework.ai:spring-ai-bom:2.0.0-M1")
+
+    // OpenAI Chat auto-config starter (2.x에서 이름이 이렇게 바뀜)
+    implementation "org.springframework.ai:spring-ai-starter-model-openai"
 }
 
 tasks.named('test') {

@@ -2,6 +2,7 @@ package com.resumerefiner.resumerefinerbackend.billing.domain;
 
 import com.resumerefiner.resumerefinerbackend.global.jpa.BaseTimeEntity;
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.AggregateRoot;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainConflictException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -123,7 +124,7 @@ public class Payment extends BaseTimeEntity implements AggregateRoot {
 
     public void markApproved() {
         if (this.status != PaymentStatus.REQUESTED) {
-            throw new IllegalStateException("Payment must be in REQUESTED state to approve.");
+            throw new DomainConflictException("Payment must be in REQUESTED state to approve.");
         }
         this.status = PaymentStatus.APPROVED;
         this.approvedAt = OffsetDateTime.now();

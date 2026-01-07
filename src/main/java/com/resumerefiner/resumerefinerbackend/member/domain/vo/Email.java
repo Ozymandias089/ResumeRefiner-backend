@@ -1,5 +1,7 @@
 package com.resumerefiner.resumerefinerbackend.member.domain.vo;
 
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainConflictException;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -21,12 +23,12 @@ public class Email {
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String value;
 
-    private Email(String value) {
+    public Email(String value) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("email must not be blank");
+            throw new DomainRuleViolationException("email must not be blank");
         }
         if (!EMAIL_PATTERN.matcher(value).matches()) {
-            throw new IllegalArgumentException("invalid email format: " + value);
+            throw new DomainConflictException("invalid email format: " + value);
         }
         this.value = value.toLowerCase(); // 보통 lowercase normalize 많이 함
     }

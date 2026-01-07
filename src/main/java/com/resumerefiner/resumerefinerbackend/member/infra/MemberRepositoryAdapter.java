@@ -3,6 +3,8 @@ package com.resumerefiner.resumerefinerbackend.member.infra;
 import com.resumerefiner.resumerefinerbackend.member.domain.Member;
 import com.resumerefiner.resumerefinerbackend.member.domain.MemberRepository;
 import com.resumerefiner.resumerefinerbackend.member.domain.Provider;
+import com.resumerefiner.resumerefinerbackend.member.domain.vo.Email;
+import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -25,27 +27,32 @@ public class MemberRepositoryAdapter implements MemberRepository {
     }
 
     @Override
-    public Optional<Member> findByEmail(String email) {
+    public Optional<Member> findByEmail(Email email) {
         return jpa.findByEmail(email);
     }
 
     @Override
-    public Optional<Member> findByHandle(String handle) {
+    public Optional<Member> findByHandle(Handle handle) {
         return jpa.findByHandle(handle);
     }
 
     @Override
-    public boolean existsByEmail(String email) {
+    public boolean existsByEmail(Email email) {
         return jpa.existsByEmail(email);
     }
 
     @Override
-    public boolean existsByHandle(String handle) {
+    public boolean existsByHandle(Handle handle) {
         return jpa.existsByHandle(handle);
     }
 
     @Override
     public Optional<Member> findByProviderAndProviderUserId(Provider provider, String providerUserId) {
         return jpa.findByProviderAndProviderUserId(provider, providerUserId);
+    }
+
+    @Override
+    public Optional<Long> findMemberIdByHandle(Handle handle) {
+        return jpa.findIdByHandle(handle);
     }
 }

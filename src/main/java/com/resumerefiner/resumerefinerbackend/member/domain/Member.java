@@ -2,6 +2,8 @@ package com.resumerefiner.resumerefinerbackend.member.domain;
 
 import com.resumerefiner.resumerefinerbackend.global.jpa.BaseTimeEntity;
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.AggregateRoot;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainConflictException;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Email;
 import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
 import jakarta.persistence.*;
@@ -92,7 +94,7 @@ public class Member extends BaseTimeEntity implements AggregateRoot {
                 Provider.LOCAL,
                 null,
                 null,
-                0
+                10
         );
     }
 
@@ -106,15 +108,30 @@ public class Member extends BaseTimeEntity implements AggregateRoot {
                 provider,
                 providerUserId,
                 null,
-                0
+                10
         );
     }
 
     // ==== 비즈니스 메서드 ====
 
     public void changeName(String newName) {
-        if (newName == null || newName.isBlank()) throw new IllegalArgumentException("name must not be blank");
+        if (newName == null || newName.isBlank()) throw new DomainRuleViolationException("name must not be blank");
         this.name = newName;
+    }
+
+    public void changeEmail(Email newEmail) {
+        if (newEmail == null || newEmail.getValue().isBlank()) throw new DomainRuleViolationException("email must not be blank");
+        this.email = newEmail;
+    }
+
+    /**
+     * 패스워드를 변경한다. newPassword는 해싱해서 넣어야 하며, provider가 local이 아닌 경우 아무것도 하지 않는다.
+     * @param newPassword hashing된 새 패스워드
+     */
+    public void changePassword(String newPassword) {
+        if (newPassword == null || newPassword.isBlank()) throw new DomainRuleViolationException("password must not be blank");
+        if (this.provider != Provider.LOCAL) return;
+        this.passwordHash = newPassword;
     }
 
     public void deactivate() { this.isActive = false; }
@@ -126,7 +143,7 @@ public class Member extends BaseTimeEntity implements AggregateRoot {
     public void adjustCredits(int delta) {
         int next = this.credits + delta;
         if (next < 0) {
-            throw new IllegalStateException("credits cannot be negative");
+            throw new DomainConflictException("credits cannot be negative");
         }
         this.credits = next;
     }

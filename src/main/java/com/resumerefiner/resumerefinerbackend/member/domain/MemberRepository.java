@@ -1,5 +1,8 @@
 package com.resumerefiner.resumerefinerbackend.member.domain;
 
+import com.resumerefiner.resumerefinerbackend.member.domain.vo.Email;
+import com.resumerefiner.resumerefinerbackend.member.domain.vo.Handle;
+
 import java.util.Optional;
 
 public interface MemberRepository {
@@ -8,13 +11,15 @@ public interface MemberRepository {
 
     Optional<Member> findById(Long id);
 
-    Optional<Member> findByEmail(String email);
+    Optional<Member> findByEmail(Email email);
 
-    Optional<Member> findByHandle(String handle);
+    Optional<Member> findByHandle(Handle handle);
 
-    boolean existsByEmail(String email);
+    boolean existsByEmail(Email email);
 
-    boolean existsByHandle(String handle);
+    boolean existsByHandle(Handle handle);
 
     Optional<Member> findByProviderAndProviderUserId(Provider provider, String providerUserId);
+
+    Optional<Long> findMemberIdByHandle(Handle handle);
 }

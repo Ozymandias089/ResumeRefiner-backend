@@ -2,10 +2,16 @@ package com.resumerefiner.resumerefinerbackend.resume.domain;
 
 import com.resumerefiner.resumerefinerbackend.global.jpa.BaseTimeEntity;
 import com.resumerefiner.resumerefinerbackend.global.shared.domain.AggregateRoot;
+import com.resumerefiner.resumerefinerbackend.global.shared.error.custom.domain.DomainRuleViolationException;
+import com.resumerefiner.resumerefinerbackend.resume.domain.vo.*;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(
@@ -40,10 +46,6 @@ public class Resume extends BaseTimeEntity implements AggregateRoot {
     private String title;
 
     @Getter
-    @Column(name = "original_text", nullable = false, columnDefinition = "TEXT")
-    private String originalText;
-
-    @Getter
     @Enumerated(EnumType.STRING)
     @Column(name = "language_code", nullable = false, length = 10)
     private LanguageCode languageCode;
@@ -52,55 +54,153 @@ public class Resume extends BaseTimeEntity implements AggregateRoot {
     @Column(name = "photo_image_id")
     private Long photoImageId;
 
-    private Resume(Long memberId,
-                   ResumeSlug slug,
-                   String title,
-                   String originalText,
-                   LanguageCode languageCode,
-                   Long photoImageId) {
+    /* ---------------------------
+     * Structured VO (single)
+     * --------------------------- */
 
-        if (memberId == null) throw new IllegalArgumentException("memberId must not be null");
-        if (slug == null) throw new IllegalArgumentException("slug must not be null");
-        if (title == null || title.isBlank()) throw new IllegalArgumentException("title must not be blank");
-        if (originalText == null) throw new IllegalArgumentException("originalText must not be null");
-        if (languageCode == null) throw new IllegalArgumentException("languageCode must not be null");
+    @Getter
+    @Embedded
+    private ResumeProfile profile;
+
+    @Getter
+    @Embedded
+    private MilitaryService militaryService; // optional (null 가능)
+
+    /* ---------------------------
+     * Structured VO collections
+     * --------------------------- */
+
+    @Getter
+    @ElementCollection
+    @CollectionTable(
+            name = "resume_education",
+            joinColumns = @JoinColumn(name = "resume_id")
+    )
+    @OrderBy("displayOrder ASC")
+    private List<ResumeEducation> educations = new ArrayList<>();
+
+    @Getter
+    @ElementCollection
+    @CollectionTable(
+            name = "resume_experience",
+            joinColumns = @JoinColumn(name = "resume_id")
+    )
+    @OrderBy("displayOrder ASC")
+    private List<ResumeExperience> experiences = new ArrayList<>();
+
+    @Getter
+    @ElementCollection
+    @CollectionTable(
+            name = "resume_custom_section",
+            joinColumns = @JoinColumn(name = "resume_id")
+    )
+    @OrderBy("displayOrder ASC")
+    private List<ResumeCustomSection> customSections = new ArrayList<>();
+
+    @Version
+    @Getter
+    @Column(name = "version", nullable = false)
+    private Long version;
+
+    /* ---------------------------
+     * Factory (예시)
+     * --------------------------- */
+
+    @Builder(access = AccessLevel.PRIVATE)
+    private Resume(
+            Long memberId,
+            String title,
+            LanguageCode languageCode,
+            ResumeProfile profile,
+            MilitaryService militaryService,
+            List<ResumeEducation> educations,
+            List<ResumeExperience> experiences,
+            List<ResumeCustomSection> customSections
+    ) {
+        if (memberId == null) throw new DomainRuleViolationException("memberId required");
+        if (title == null || title.isBlank()) throw new DomainRuleViolationException("title required");
+        if (languageCode == null) throw new DomainRuleViolationException("languageCode required");
+        if (profile == null) throw new DomainRuleViolationException("profile required");
 
         this.memberId = memberId;
-        this.slug = slug;
+        this.slug = ResumeSlug.random();
         this.title = title;
-        this.originalText = originalText;
         this.languageCode = languageCode;
+        this.profile = profile;
+        this.militaryService = militaryService;
+        this.educations = educations == null ? List.of() : List.copyOf(educations);
+        this.experiences = experiences == null ? List.of() : List.copyOf(experiences);
+        this.customSections = customSections == null ? List.of() : List.copyOf(customSections);
+    }
+
+    public static Resume create(
+            Long memberId,
+            String title,
+            LanguageCode languageCode,
+            ResumeProfile resumeProfile,
+            MilitaryService military,
+            List<ResumeEducation> educations,
+            List<ResumeExperience> experiences,
+            List<ResumeCustomSection> customSections
+    ) {
+        return Resume.builder()
+                .memberId(memberId)
+                .title(title)
+                .languageCode(languageCode)
+                .profile(resumeProfile)
+                .militaryService(military)
+                .educations(educations)
+                .experiences(experiences)
+                .customSections(customSections)
+                .build();
+    }
+
+    /* ---------------------------
+     * Domain actions (replace style)
+     * --------------------------- */
+
+    public void changeTitle(String title) {
+        if (title == null || title.isBlank()) throw new DomainRuleViolationException("RESUME_TITLE_REQUIRED");
+        this.title = title.trim();
+    }
+
+    public void changeLanguage(LanguageCode languageCode) {
+        if (languageCode == null) throw new DomainRuleViolationException("RESUME_LANGUAGE_REQUIRED");
+        this.languageCode = languageCode;
+    }
+
+    public void changePhotoImageId(Long photoImageId) {
         this.photoImageId = photoImageId;
     }
 
-    // ==== 정적 팩토리 ====
-
-    public static Resume create(Long memberId, String slug, String title, String originalText, LanguageCode languageCode, Long photoImageId) {
-        return new Resume(
-                memberId,
-                ResumeSlug.of(slug),
-                title,
-                originalText,
-                languageCode,
-                photoImageId
-        );
+    public void changeProfile(ResumeProfile profile) {
+        if (profile == null) throw new DomainRuleViolationException("RESUME_PROFILE_REQUIRED");
+        this.profile = profile;
     }
 
-    // ==== 비즈니스 메서드 ====
-
-    public void changeTitle(String newTitle) {
-        if (newTitle == null || newTitle.isBlank()) {
-            throw new IllegalArgumentException("title cannot be empty");
-        }
-        this.title = newTitle;
+    public void clearProfile() {
+        // 정책적으로 profile은 필수로 두고 싶으면 이 메서드는 제거해도 됨
+        this.profile = ResumeProfile.ofName("익명");
     }
 
-    public void changePhoto(Long mediaFileId) {
-        this.photoImageId = mediaFileId;
+    public void changeMilitaryService(MilitaryService militaryService) {
+        this.militaryService = militaryService; // null 허용
     }
 
-    public void updateOriginalText(String newText) {
-        if (newText == null) throw new IllegalArgumentException("text cannot be null");
-        this.originalText = newText;
+    public void clearMilitaryService() {
+        this.militaryService = null;
+    }
+
+    public void replaceEducations(List<ResumeEducation> educations) {
+        this.educations = (educations == null) ? new ArrayList<>() : new ArrayList<>(educations);
+        // 여기서 displayOrder 검증을 넣고 싶으면 validateOrders(...) 추가
+    }
+
+    public void replaceExperiences(List<ResumeExperience> experiences) {
+        this.experiences = (experiences == null) ? new ArrayList<>() : new ArrayList<>(experiences);
+    }
+
+    public void replaceCustomSections(List<ResumeCustomSection> customSections) {
+        this.customSections = (customSections == null) ? new ArrayList<>() : new ArrayList<>(customSections);
     }
 }
