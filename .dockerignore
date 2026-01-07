@@ -1,0 +1,26 @@
+# Build outputs
+build
+.gradle
+
+# IDE
+.idea
+.vscode
+*.iml
+
+# OS
+.DS_Store
+
+# Node / Front
+node_modules
+
+# Env & secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Logs
+*.log
+
+# Static image cache
+.local-storage
