@@ -1,5 +1,6 @@
 package com.resumerefiner.resumerefinerbackend.global.security.oauth;
 
+import com.resumerefiner.resumerefinerbackend.config.WebAppProperties;
 import com.resumerefiner.resumerefinerbackend.global.security.AuthenticatedMemberPrincipal;
 import com.resumerefiner.resumerefinerbackend.global.security.SessionLoginSupport;
 import com.resumerefiner.resumerefinerbackend.member.application.port.in.OAuth2LoginUseCase;
@@ -21,6 +22,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final OAuth2LoginUseCase oAuth2LoginUseCase;
     private final SessionLoginSupport sessionLoginSupport;
+    private final WebAppProperties webAppProperties;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -48,6 +50,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         sessionLoginSupport.login(principal, request, response);
 
-        response.sendRedirect("http://localhost:3000/oauth/success");
+        response.sendRedirect(webAppProperties.oauthSuccessUrl());
     }
 }

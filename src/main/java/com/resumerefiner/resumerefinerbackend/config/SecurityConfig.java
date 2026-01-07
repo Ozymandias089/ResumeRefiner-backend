@@ -4,6 +4,7 @@ import com.resumerefiner.resumerefinerbackend.global.security.MemberAuthProvider
 import com.resumerefiner.resumerefinerbackend.global.security.oauth.OAuth2LoginSuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,33 +19,29 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableConfigurationProperties(WebAppProperties.class)
 public class SecurityConfig {
 
     private final MemberAuthProvider memberAuthProvider;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final WebAppProperties webAppProperties;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                //.anonymous(AbstractHttpConfigurer::disable)
                 .exceptionHandling(e -> e
-                        // 인증 안 된 경우 → 401
-                        .authenticationEntryPoint((req, res, ex) -> {
-                            res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                        })
-                        // 인증은 됐으나 접근 불가 → 403
-                        .accessDeniedHandler((req, res, ex) -> {
-                            res.sendError(HttpServletResponse.SC_FORBIDDEN);
-                        })
+                        .authenticationEntryPoint((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                        .accessDeniedHandler((req, res, ex) -> res.sendError(HttpServletResponse.SC_FORBIDDEN))
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // 인증 없이 열어둘 API들
                         .requestMatchers(
                                 "/static/**",
                                 "/api/health",
@@ -54,8 +51,6 @@ public class SecurityConfig {
                                 "/api/auth/logout",
                                 "/api/handle/check",
                                 "/api/email/check",
-
-                                // Mandatory for OAuth2 features
                                 "/oauth2/**",
                                 "/login/oauth2/**"
                         ).permitAll()
@@ -81,17 +76,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/resumes/{slug}/reviews/delete").authenticated()
                         .anyRequest().authenticated()
                 )
-                // 세션 기반 인증을 쓸 것이므로 stateless(X)
-                .sessionManagement(session -> session
-                        .sessionFixation().migrateSession()
-                )
-                // 폼 로그인/기본 로그인은 안 쓰고, 우리가 만든 REST 로그인만 사용
+                .sessionManagement(session -> session.sessionFixation().migrateSession())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .oauth2Login(oauth -> oauth
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler((request, response, exception) -> {
-                            response.sendRedirect("http://localhost:3000/oauth/failure");
+                            // (선택) 프런트 failure 페이지에서 reason 표시하고 싶으면 쿼리로 전달
+                            String reason = exception != null ? exception.getClass().getSimpleName() : "OAuthLoginFailed";
+                            String url = webAppProperties.oauthFailureUrl()
+                                    + "?reason=" + URLEncoder.encode(reason, StandardCharsets.UTF_8);
+                            response.sendRedirect(url);
                         })
                 );
 
@@ -99,20 +94,20 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
         return new ProviderManager(memberAuthProvider);
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:3000",
-                "https://resume-refiner-web.vercel.app"
-        ));
+
+        // 핵심: 프로퍼티에서 주입
+        configuration.setAllowedOriginPatterns(webAppProperties.getAllowedOriginPatterns());
+
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true); // withCredentials: true
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
