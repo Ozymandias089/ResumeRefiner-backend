@@ -32,7 +32,7 @@ public class SecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .anonymous(AbstractHttpConfigurer::disable)
+                //.anonymous(AbstractHttpConfigurer::disable)
                 .exceptionHandling(e -> e
                         // 인증 안 된 경우 → 401
                         .authenticationEntryPoint((req, res, ex) -> {
@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 열어둘 API들
                         .requestMatchers(
+                                "/static/**",
                                 "/api/health",
                                 "/api/version",
                                 "/api/auth/register",
@@ -105,9 +106,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
+        configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
-                "https://app.resumerefiner.com"
+                "https://*.vercel.app"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

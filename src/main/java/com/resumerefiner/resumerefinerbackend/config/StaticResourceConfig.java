@@ -2,15 +2,13 @@ package com.resumerefiner.resumerefinerbackend.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.nio.file.Paths;
 
 @Configuration
-@Profile("local")
-public class LocalStaticResourceConfig implements WebMvcConfigurer {
+public class StaticResourceConfig implements WebMvcConfigurer {
 
     @Value("${app.storage.local.root-dir}")
     private String rootDir;

@@ -3,7 +3,6 @@ package com.resumerefiner.resumerefinerbackend.media.infra;
 import com.resumerefiner.resumerefinerbackend.media.application.ports.out.MediaStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -14,7 +13,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @Component
-@Profile("local")
 @RequiredArgsConstructor
 public class LocalMediaStorageAdapter implements MediaStorage {
 
@@ -26,18 +24,22 @@ public class LocalMediaStorageAdapter implements MediaStorage {
 
     @Override
     public String uploadPublic(String key, String contentType, InputStream inputStream, long sizeBytes) {
-        // key: profile/{memberId}/{uuid}.png
         Path target = Paths.get(rootDir).resolve(key).normalize();
+
+        // rootDir 밖으로 탈출 방지 (업로드에도 적용하는 게 좋아)
+        Path root = Paths.get(rootDir).toAbsolutePath().normalize();
+        Path absTarget = target.toAbsolutePath().normalize();
+        if (!absTarget.startsWith(root)) {
+            throw new IllegalArgumentException("invalid storage key: " + key);
+        }
 
         try {
             Files.createDirectories(target.getParent());
-            // 덮어쓰기 허용
             Files.copy(inputStream, target, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new IllegalStateException("failed to store file locally", e);
         }
 
-        // 로컬 접근 URL: http://localhost:8080/static/profile/.. 형태로 매핑할 예정
         String base = publicBaseUrl.replaceAll("/$", "");
         return base + "/static/" + key;
     }
@@ -48,7 +50,6 @@ public class LocalMediaStorageAdapter implements MediaStorage {
 
         Path target = Paths.get(rootDir).resolve(key).normalize();
 
-        // rootDir 밖으로 탈출하는 key 방지(보안)
         Path root = Paths.get(rootDir).toAbsolutePath().normalize();
         Path absTarget = target.toAbsolutePath().normalize();
         if (!absTarget.startsWith(root)) {
@@ -57,9 +58,6 @@ public class LocalMediaStorageAdapter implements MediaStorage {
 
         try {
             Files.deleteIfExists(absTarget);
-
-            // (선택) 빈 디렉토리 정리하고 싶으면 부모를 역순으로 지우는 로직 추가 가능
-            // 지금은 굳이 안 지워도 OK.
         } catch (IOException e) {
             throw new IllegalStateException("failed to delete file locally", e);
         }
